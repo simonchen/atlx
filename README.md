@@ -14,4 +14,4 @@ Super Window class derived from CWndThunker, helping you to create a simple Wind
 Create model / modeless dialog and processing generic events.
 
 ## References
-[Another new thunk copy from ATL](https://www.codeproject.com/Articles/348387/Another-new-thunk-copy-from-ATL) @Authored by Simonchen
+[Another new thunk copy from ATL](https://www.codeproject.com/Articles/348387/Another-new-thunk-copy-from-ATL) Authored by @[Simonchen](https://github.com/simonchen)
