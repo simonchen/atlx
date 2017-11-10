@@ -2,6 +2,7 @@
 namespace ATLX{
 	
 	// Basic string template class, usage is more likely close to STL std::basic_string
+	// [non thread-safe]
 	template <class _Elem>
 	class basic_string
 	{
@@ -55,6 +56,7 @@ namespace ATLX{
 		operator _Elem*() const { return _Ptr; }
 
 		// Format string by standard c++ format specification.
+		// Format string by standard c++ format specification.
 		void format(_Elem* fmt, ...)
 		{
 			va_list args;
@@ -62,24 +64,24 @@ namespace ATLX{
 
 			if (sizeof(_Elem) == sizeof(WCHAR))
 			{
-				int lens = vswprintf_s(NULL, 0, fmt, args);
+				int lens = vswprintf_s(NULL, 0, (LPWSTR)fmt, args);
 				if (lens > 0)
 				{
 					if (lens > m_maxSize){
 						_realloc(lens);
 					}
-					vswprintf_s(_Ptr, sizeof(szBuff), fmt, args);
+					vswprintf_s((LPWSTR)_Ptr, lens, (LPWSTR)fmt, args);
 				}
 			}
 			else if (sizeof(_Elem) == sizeof(char))
 			{
-				int lens = _vsnprintf(NULL, 0, fmt, args);
+				int lens = _vsnprintf(NULL, 0, (LPSTR)fmt, args);
 				if (lens > 0)
 				{
 					if (lens > m_maxSize){
 						_realloc(lens);
 					}
-					_vsnprintf(_Ptr, sizeof(szBuff), fmt, args);
+					_vsnprintf((LPSTR)_Ptr, lens, (LPSTR)fmt, args);
 				}
 
 			}
