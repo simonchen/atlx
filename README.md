@@ -16,7 +16,7 @@ Create model / modeless dialog and processing generic events.
 ## Compilation environment
 - VisualStudio 2005 or higher version (2013,2015,2017)
 - Windows SDK
-- Multi-Byte / Unicode charset
+- Multi-Byte(UTF-8) / Unicode charset
 
 ## Code rules
 - No exception handler (such as Memory allocation failures)
