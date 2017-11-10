@@ -5,7 +5,7 @@ A lightweight library that reconstruct the core of [ATL](https://msdn.microsoft.
 The aim **IS** to simplify the usage for save time to develop User Interfaces for windows desktop application.
 The aim is **NOT** to provide a framework like [Model-View-Controller mode](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller), thus, the library is only facing the people who wanted to build a primary or middle-difficut User Interfaces as quickly as possible.
 
-The people who ever been familar with MFC/ATL will be more easily using this library.
+The people who ever been familar with MFC/ATL/[STL](https://en.wikipedia.org/wiki/Standard_Template_Library)(Standard Template Library) will be more easily to use this library.
 
 ## Fundational Classes
 
