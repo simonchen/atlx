@@ -56,7 +56,6 @@ namespace ATLX{
 		operator _Elem*() const { return _Ptr; }
 
 		// Format string by standard c++ format specification.
-		// Format string by standard c++ format specification.
 		void format(_Elem* fmt, ...)
 		{
 			va_list args;
