@@ -16,8 +16,7 @@ Create model / modeless dialog and processing generic events.
 ## Compilation environment
 - VisualStudio 2005 or higher version (2013,2015,2017)
 - Windows SDK
-- [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) (Standard Template Library)
-- Unicode charset
+- Multi-Byte / Unicode charset
 
 ## References
 [Another new thunk copy from ATL](https://www.codeproject.com/Articles/348387/Another-new-thunk-copy-from-ATL) Authored by @[Simonchen](https://github.com/simonchen)
