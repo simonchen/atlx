@@ -18,5 +18,9 @@ Create model / modeless dialog and processing generic events.
 - Windows SDK
 - Multi-Byte / Unicode charset
 
+## Code rules
+- No exception handler (such as Memory allocation failures)
+- Naming rules are almost close to [MFC](https://en.wikipedia.org/wiki/Microsoft_Foundation_Class_Library) 
+
 ## References
 [Another new thunk copy from ATL](https://www.codeproject.com/Articles/348387/Another-new-thunk-copy-from-ATL) Authored by @[Simonchen](https://github.com/simonchen)
