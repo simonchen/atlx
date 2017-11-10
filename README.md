@@ -1,6 +1,6 @@
 # atlx
 
-A lightweight library that reconstruct the core of [ATL](https://msdn.microsoft.com/en-us/library/3ax346b7.aspx), and provide some foundational classes like [MFC](https://en.wikipedia.org/wiki/Microsoft_Foundation_Class_Library)(Microsoft Foundational Classes) make you easily manage User Interfaces such as Window, Dialog, Limited kinds of control like Static box, Input box, Check box, Radio box, Button, Progress bar, Slider control, Hotkey control.
+A lightweight library that reconstruct the core of [ATL](https://msdn.microsoft.com/en-us/library/3ax346b7.aspx), and provide some foundational classes like [MFC](https://en.wikipedia.org/wiki/Microsoft_Foundation_Class_Library)(Microsoft Foundational Classes) make you easily manage User Interfaces such as Window, Dialog, View(and Scrollable View), other **Limited** kinds of control like Static box, Input box, Check box, Radio box, Button, Progress bar, Slider control, Hotkey control.
 
 The aim **IS** to simplify the usage for save time to develop User Interfaces for windows desktop application.
 The aim is **NOT** to provide a framework like [Model-View-Controller mode](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller), thus, the library is only facing the people who wanted to build a primary or middle-difficut User Interfaces as quickly as possible.
