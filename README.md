@@ -21,9 +21,11 @@ Create model / modeless dialog and processing generic events.
 #### String
 
 - CString, CStringA, CStringW
+
 They intend to be used in processing of TEXT string at ending of zero
 
 - string
+
 This intends to be used in processing of SINGLE BYTE(CHAR)
   
 ## Compilation environment
