@@ -1,18 +1,60 @@
+/**********************************************************************
+*
+* Copyright (c) 2017 Simon Chen
+*
+***********************************************************************/
+
 #pragma once
 namespace ATLX{
 	
 	// Basic string template class, usage is more likely close to STL std::basic_string
-	// [non thread-safe]
+	// Note: it doesn't support COW (Copy on write), and it's non thread-safe.
 	template <class _Elem>
 	class basic_string
 	{
 	public:
+		// Constructs string with empty.
 		basic_string() { _Ptr = NULL; m_dataSize = m_maxSize = 0; }
+
+		// Constructs string by certain size, it won't fill zeroes throughout string.
 		basic_string(size_t size) : _Ptr(NULL), m_dataSize(0), m_maxSize(0)
 		{
 			//assert(size > 0);
-			_free();
+			_free(); // be safely more
 			_alloc(size);
+		}
+
+		// Constructs string by passing generic characters at ending zero.
+		basic_string(const _Elem* ptr) : _Ptr(NULL), m_dataSize(0), m_maxSize(0)
+		{
+			_assign(ptr);
+		}
+
+		// Contructs on copy of same basic_string<_Elem>
+		basic_string(const basic_string<_Elem>& str) : _Ptr(NULL), m_dataSize(0), m_maxSize(0)
+		{
+			_copy(str);
+		}
+
+		basic_string<_Elem>& operator=(const _Elem* ptr)
+		{
+			_assign(ptr);
+			return *this;
+		}
+
+		basic_string<_Elem>& operator=(const basic_string<_Elem>& str)
+		{
+			_copy(str);
+			return *this;
+		}
+
+		_Elem& operator [](int index){
+			if (index < 0 || index >= m_maxSize || !_Ptr){
+				static _Elem nullchar(NULL);
+				return nullchar;
+			}
+
+			return _Ptr[index];
 		}
 
 		~basic_string()
@@ -21,6 +63,7 @@ namespace ATLX{
 		}
 
 		size_t size() { return m_dataSize; }
+		size_t max_size() { return m_maxSize; }
 
 		inline bool append(const _Elem* ptr, size_t count)
 		{
@@ -56,39 +99,70 @@ namespace ATLX{
 		operator _Elem*() const { return _Ptr; }
 
 		// Format string by standard c++ format specification.
-		void format(_Elem* fmt, ...)
+		void format(const _Elem* fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);
 
 			if (sizeof(_Elem) == sizeof(WCHAR))
 			{
-				int lens = vswprintf_s(NULL, 0, (LPWSTR)fmt, args);
+				int lens = vswprintf_s(NULL, 0, (LPCWSTR)fmt, args);
 				if (lens > 0)
 				{
 					if (lens > m_maxSize){
 						_realloc(lens);
 					}
-					vswprintf_s((LPWSTR)_Ptr, lens, (LPWSTR)fmt, args);
+					vswprintf_s((LPWSTR)_Ptr, lens, (LPCWSTR)fmt, args);
 				}
 			}
 			else if (sizeof(_Elem) == sizeof(char))
 			{
-				int lens = _vsnprintf(NULL, 0, (LPSTR)fmt, args);
+				int lens = _vsnprintf(NULL, 0, (LPCSTR)fmt, args);
 				if (lens > 0)
 				{
 					if (lens > m_maxSize){
 						_realloc(lens);
 					}
-					_vsnprintf((LPSTR)_Ptr, lens, (LPSTR)fmt, args);
+					_vsnprintf((LPSTR)_Ptr, lens, (LPCSTR)fmt, args);
 				}
 
 			}
 		}
+
 	protected:
 		_Elem* _Ptr;
 		size_t m_dataSize;
 		size_t m_maxSize;
+
+		void _assign(const _Elem* ptr)
+		{
+			if (ptr){
+				size_t lens = 0;
+				if (sizeof(_Elem) == sizeof(char))
+					lens = strlen((LPCSTR)ptr);
+				if (sizeof(_Elem) == sizeof(WCHAR))
+					lens = wcslen((LPCWSTR)ptr);
+				if (_alloc(lens + 1))
+				{
+					memcpy(_Ptr, ptr, (lens + 1)*sizeof(_Elem));
+					m_dataSize = lens;
+					m_maxSize = lens + 1;
+				}
+			}
+		}
+
+		void _copy(const basic_string<_Elem>& str)
+		{
+			if (str.c_str()){
+				size_t lens = str.max_size();
+				if (_alloc(lens))
+				{
+					memcpy(_Ptr, str.c_str(), lens*sizeof(_Elem));
+					m_dataSize = str.size();
+					m_maxSize = lens;
+				}
+			}
+		}
 
 		void _free()
 		{
@@ -124,9 +198,14 @@ namespace ATLX{
 		}
 	};
 
-	// CStringA, CStringW would be the good name that make you easily remember CString in MFC
+	// CString, CStringA, CStringW
 	typedef basic_string<char> CStringA;
 	typedef basic_string<wchar_t> CStringW;
+#ifdef UNICODE
+	typedef CStringW CString;
+#else
+	typedef CStringA CString;
+#endif
 
 	// A2T, T2A for convert multi-bytes & unicode chars.
 	class A2T

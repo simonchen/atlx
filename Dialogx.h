@@ -1,7 +1,15 @@
+/**********************************************************************
+*
+* Copyright (c) 2017 Simon Chen
+*
+***********************************************************************/
+
 #pragma once
 #include "WndThunker.h"
 
 namespace ATLX {
+
+	// Base class - CDialogx
 	class CDialogx :
 		public ATLX::CWndThunker
 	{
