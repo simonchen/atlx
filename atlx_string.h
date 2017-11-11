@@ -199,7 +199,7 @@ namespace ATLX{
 	};
 
 	// CString, CStringA, CStringW
-	// They intend to be used for TEXT string at ending of zero
+	// They intend to be used in processing of TEXT string at ending of zero
 	typedef basic_string<char> CStringA;
 	typedef basic_string<wchar_t> CStringW;
 #ifdef UNICODE
@@ -208,7 +208,7 @@ namespace ATLX{
 	typedef CStringA CString;
 #endif
 	// string
-	// This intends to be used for processing SINGLE BYTE(CHAR)
+	// This intends to be used in processing of SINGLE BYTE(CHAR)
 	typedef basic_string<char> string;
 
 	// A2T, T2A for convert multi-bytes & unicode chars.
