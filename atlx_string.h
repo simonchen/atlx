@@ -62,9 +62,13 @@ namespace ATLX{
 			_free();
 		}
 
+		// Returns actual size to store data.
 		size_t size() const { return m_dataSize; }
+		// Returns max size allocated.
 		size_t max_size() const { return m_maxSize; }
 
+		// Append new elements to current string, 
+		// For TEXT type of string, the size of last zero terminator should be counted.
 		inline bool append(const _Elem* ptr, size_t count)
 		{
 			if ((m_dataSize + count) > m_maxSize)
@@ -77,13 +81,22 @@ namespace ATLX{
 			m_dataSize += count;
 		}
 
-		// Set data size = 0 but NOT to free memory
+		// Size of elements are reset to zero, but this won't free memory!
 		void erase()
 		{
 			m_dataSize = 0;
 		}
 
-		// Empty string
+		// Adjusts the max size of elements that the string can place
+		void resize(size_t size)
+		{
+			if (size > m_maxSize){
+				if (_realloc(size))
+					m_maxSize = size;
+			}
+		}
+
+		// Empty string and free memory
 		void empty()
 		{
 			_free();
@@ -113,20 +126,27 @@ namespace ATLX{
 
 			if (sizeof(_Elem) == sizeof(WCHAR))
 			{
-				int lens = vswprintf_s(NULL, 0, (LPCWSTR)fmt, args);
+				// If locale points to an empty string, the locale is the implementation-defined native environment
+				// https://msdn.microsoft.com/en-us/library/x99tb11d.aspx
+				// vwprintf_s will use ANSI encoding to convert unicode args, this will make sure that output length is correct.
+				char* cur_locale = setlocale(LC_ALL, "");
+				int lens = vwprintf_s((LPCWSTR)fmt, args);
 				if (lens > 0)
 				{
+					lens += 1; // vwprintf_s doesn't count terminating L'\0' 
 					if (lens > m_maxSize){
 						_realloc(lens);
 					}
 					vswprintf_s((LPWSTR)_Ptr, lens, (LPCWSTR)fmt, args);
 				}
+				setlocale(LC_ALL, cur_locale);
 			}
 			else if (sizeof(_Elem) == sizeof(char))
 			{
-				int lens = _vsnprintf(NULL, 0, (LPCSTR)fmt, args);
+				int lens = _vscprintf((LPCSTR)fmt, args); 
 				if (lens > 0)
 				{
+					lens += 1; // _vscprintf doesn't count terminating '\0' 
 					if (lens > m_maxSize){
 						_realloc(lens);
 					}
@@ -141,6 +161,7 @@ namespace ATLX{
 		size_t m_dataSize;
 		size_t m_maxSize;
 
+		// Copy TEXT string with zero terminator
 		void _assign(const _Elem* ptr)
 		{
 			if (ptr){
@@ -158,10 +179,12 @@ namespace ATLX{
 			}
 		}
 
+		// Copy generic string
 		void _copy(const basic_string<_Elem>& str)
 		{
 			if (str.c_str()){
 				size_t lens = str.max_size();
+				_free();
 				if (_alloc(lens))
 				{
 					memcpy(_Ptr, str.c_str(), lens*sizeof(_Elem));
@@ -171,6 +194,7 @@ namespace ATLX{
 			}
 		}
 
+		// Just freeing memory
 		void _free()
 		{
 			if (_Ptr)
@@ -183,6 +207,7 @@ namespace ATLX{
 			m_maxSize = 0;
 		}
 
+		// Force re-allocate memory and copy current data.
 		bool _realloc(size_t size)
 		{
 			_Elem* temp = new _Elem[size];
@@ -196,6 +221,7 @@ namespace ATLX{
 			return true;
 		}
 
+		// Allocate memory by size of elements, typically, it's used for initialization.
 		bool _alloc(size_t size)
 		{
 			_Ptr = new _Elem[size];
@@ -281,7 +307,7 @@ namespace ATLX{
 				return;
 			}
 			int nLengthW = static_cast<int>(wcslen(psz)) + 1;
-			int nLengthA = WideCharToMultiByte(nCodePage, 0, psz, nLengthA, NULL, 0, NULL, NULL);
+			int nLengthA = WideCharToMultiByte(nCodePage, 0, psz, nLengthW, NULL, 0, NULL, NULL);
 			m_psz = new char[nLengthA];
 			::WideCharToMultiByte(nCodePage, 0, psz, nLengthW, m_psz, nLengthA, NULL, NULL);
 		}
