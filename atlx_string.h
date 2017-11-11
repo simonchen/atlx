@@ -24,7 +24,7 @@ namespace ATLX{
 			_alloc(size);
 		}
 
-		// Constructs string by passing generic characters at ending zero.
+		// Constructs string by passing generic characters at ending of zero.
 		basic_string(const _Elem* ptr) : _Ptr(NULL), m_dataSize(0), m_maxSize(0)
 		{
 			_assign(ptr);
@@ -62,8 +62,8 @@ namespace ATLX{
 			_free();
 		}
 
-		size_t size() { return m_dataSize; }
-		size_t max_size() { return m_maxSize; }
+		size_t size() const { return m_dataSize; }
+		size_t max_size() const { return m_maxSize; }
 
 		inline bool append(const _Elem* ptr, size_t count)
 		{
@@ -73,7 +73,7 @@ namespace ATLX{
 					return false;
 			}
 
-			memcpy(_Ptr + m_dataSize, ptr, count);
+			memcpy(_Ptr + m_dataSize, ptr, count*sizeof(_Elem));
 			m_dataSize += count;
 		}
 
@@ -94,7 +94,7 @@ namespace ATLX{
 		}
 
 		// Returns internal Ptr of _Elem
-		const _Elem* c_str() { return _Ptr; }
+		const _Elem* c_str() const { return _Ptr; }
 
 		operator _Elem*() const { return _Ptr; }
 
@@ -181,7 +181,7 @@ namespace ATLX{
 			_Elem* temp = new _Elem[size];
 			if (!temp) return false;
 			if (_Ptr){
-				memcpy(temp, _Ptr, m_dataSize);
+				memcpy(temp, _Ptr, m_dataSize*sizeof(_Elem));
 				delete _Ptr;
 			}
 			_Ptr = temp;
@@ -199,6 +199,7 @@ namespace ATLX{
 	};
 
 	// CString, CStringA, CStringW
+	// They intend to be used for TEXT string at ending of zero
 	typedef basic_string<char> CStringA;
 	typedef basic_string<wchar_t> CStringW;
 #ifdef UNICODE
@@ -206,6 +207,9 @@ namespace ATLX{
 #else
 	typedef CStringA CString;
 #endif
+	// string
+	// This intends to be used for processing SINGLE BYTE(CHAR)
+	typedef basic_string<char> string;
 
 	// A2T, T2A for convert multi-bytes & unicode chars.
 	class A2T
