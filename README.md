@@ -7,7 +7,7 @@ The aim is **NOT** to provide a complete development framework like [Model-View-
 
 The people who ever been familar with MFC/ATL/[STL](https://en.wikipedia.org/wiki/Standard_Template_Library)(Standard Template Library) will be more easily to use this library.
 
-## Fundational Classes
+## Fundational Window Classes
 
 #### CWndThunker
 The core that any Window class been derived from
@@ -16,6 +16,16 @@ Super Window class derived from CWndThunker creates a basic Window, Subclass / U
 #### CDialogx
 Create model / modeless dialog and processing generic events.
 
+## Utility Classes
+
+#### String
+
+- CString, CStringA, CStringW
+They intend to be used in processing of TEXT string at ending of zero
+
+- string
+This intends to be used in processing of SINGLE BYTE(CHAR)
+  
 ## Compilation environment
 - VisualStudio 2005 or higher version (2013,2015,2017)
 - Windows SDK
