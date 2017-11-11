@@ -77,9 +77,16 @@ namespace ATLX{
 			m_dataSize += count;
 		}
 
+		// Set data size = 0 but NOT to free memory
 		void erase()
 		{
 			m_dataSize = 0;
+		}
+
+		// Empty string
+		void empty()
+		{
+			_free();
 		}
 
 		bool reserve(size_t size)
