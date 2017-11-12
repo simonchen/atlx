@@ -131,6 +131,7 @@ namespace ATLX{
 				// vwprintf_s will use ANSI encoding to convert unicode args, this will make sure that output length is correct.
 				char* cur_locale = setlocale(LC_ALL, "");
 				int lens = vwprintf_s((LPCWSTR)fmt, args);
+				setlocale(LC_ALL, cur_locale);
 				if (lens > 0)
 				{
 					lens += 1; // vwprintf_s doesn't count terminating L'\0' 
@@ -142,7 +143,6 @@ namespace ATLX{
 					lens = vswprintf_s((LPWSTR)_Ptr, lens, (LPCWSTR)fmt, args);
 					m_dataSize = lens;
 				}
-				setlocale(LC_ALL, cur_locale);
 			}
 			else if (sizeof(_Elem) == sizeof(char))
 			{
