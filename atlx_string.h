@@ -118,7 +118,28 @@ namespace ATLX{
 
 		operator _Elem*() const { return _Ptr; }
 
-		// Format string by standard c++ format specification.
+		// Reads formatted data from the standard input stream
+		void sscanf(const _Elem* fmt, ...)
+		{
+			if (!_Ptr || m_dataSize <= 0)
+				return;
+
+			va_list args;
+			va_start(args, fmt);
+
+			if (sizeof(_Elem) == sizeof(WCHAR))
+			{
+				vsscanf_s(T2A((LPWSTR)_Ptr), T2A(fmt), args);
+			}
+			if (sizeof(_Elem) == sizeof(char))
+			{
+				vsscanf_s((LPSTR)_Ptr, (LPCSTR)fmt, args);
+			}
+
+			va_end(args);
+		}
+
+		// Write formatted data by standard c++ format specification.
 		void format(const _Elem* fmt, ...)
 		{
 			va_list args;
@@ -160,6 +181,8 @@ namespace ATLX{
 				}
 
 			}
+
+			va_end(args);
 		}
 
 	protected:
