@@ -135,9 +135,12 @@ namespace ATLX{
 				{
 					lens += 1; // vwprintf_s doesn't count terminating L'\0' 
 					if (lens > m_maxSize){
-						_realloc(lens);
+						if (!_realloc(lens))
+							return;
+						m_maxSize = lens;
 					}
-					vswprintf_s((LPWSTR)_Ptr, lens, (LPCWSTR)fmt, args);
+					lens = vswprintf_s((LPWSTR)_Ptr, lens, (LPCWSTR)fmt, args);
+					m_dataSize = lens;
 				}
 				setlocale(LC_ALL, cur_locale);
 			}
@@ -148,9 +151,12 @@ namespace ATLX{
 				{
 					lens += 1; // _vscprintf doesn't count terminating '\0' 
 					if (lens > m_maxSize){
-						_realloc(lens);
+						if (!_realloc(lens))
+							return;
+						m_maxSize = lens;
 					}
-					_vsnprintf((LPSTR)_Ptr, lens, (LPCSTR)fmt, args);
+					lens = _vsnprintf((LPSTR)_Ptr, lens, (LPCSTR)fmt, args);
+					m_dataSize = lens;
 				}
 
 			}
