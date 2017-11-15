@@ -32,6 +32,7 @@ This intends to be used in processing of SINGLE BYTE(CHAR)
 - VisualStudio 2005 or higher version (2013,2015,2017)
 - Windows SDK
 - Multi-Byte(UTF-8) / Unicode charset
+- C Run-time secure
 
 ## Code rules
 - No exception handler (such as Memory allocation failures)
