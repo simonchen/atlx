@@ -4,6 +4,8 @@
 *
 ***********************************************************************/
 
+#include "locale.h"
+
 #pragma once
 namespace ATLX{
 	
@@ -64,7 +66,11 @@ namespace ATLX{
 
 		// Returns actual size to store data.
 		size_t size() const { return m_dataSize; }
-		// Returns max size allocated.
+
+		// Returns actual size to store data.
+		size_t length() const { return m_dataSize; }
+
+		// Returns Max size allocated.
 		size_t max_size() const { return m_maxSize; }
 
 		// Append new elements to current string, 
@@ -87,21 +93,28 @@ namespace ATLX{
 			m_dataSize = 0;
 		}
 
-		// Adjusts the max size of elements that the string can place
-		void resize(size_t size)
-		{
-			if (size > m_maxSize){
-				if (_realloc(size))
-					m_maxSize = size;
-			}
-		}
-
 		// Empty string and free memory
 		void empty()
 		{
 			_free();
 		}
 
+		// Get buffer by specified size
+		_Elem* get_buffer(size_t size)
+		{
+			reserve(size);
+			return _Ptr;
+		}
+
+		// Adjusts the max size of elements that the string can place
+		// it's identical with reserve()
+		bool resize(size_t size)
+		{
+			return reserve(size);
+		}
+
+		// Adjusts the max size of elements that the string can place
+		// it's identical with resize()
 		bool reserve(size_t size)
 		{
 			bool ret = true;
@@ -129,7 +142,9 @@ namespace ATLX{
 
 			if (sizeof(_Elem) == sizeof(WCHAR))
 			{
-				vsscanf_s(T2A((LPWSTR)_Ptr), T2A(fmt), args);
+				T2A _str(_Ptr);
+				T2A _fmt(fmt);
+				vsscanf_s(_str, _fmt, args);
 			}
 			if (sizeof(_Elem) == sizeof(char))
 			{
@@ -151,7 +166,7 @@ namespace ATLX{
 				// https://msdn.microsoft.com/en-us/library/x99tb11d.aspx
 				// vwprintf_s will use ANSI encoding to convert unicode args, this will make sure that output length is correct.
 				char* cur_locale = setlocale(LC_ALL, "");
-				int lens = vwprintf_s((LPCWSTR)fmt, args);
+				size_t lens = vwprintf_s((LPCWSTR)fmt, args);
 				setlocale(LC_ALL, cur_locale);
 				if (lens > 0)
 				{
@@ -167,7 +182,7 @@ namespace ATLX{
 			}
 			else if (sizeof(_Elem) == sizeof(char))
 			{
-				int lens = _vscprintf((LPCSTR)fmt, args); 
+				size_t lens = _vscprintf((LPCSTR)fmt, args); 
 				if (lens > 0)
 				{
 					lens += 1; // _vscprintf doesn't count terminating '\0' 
@@ -278,7 +293,7 @@ namespace ATLX{
 	{
 	public:
 		A2T(LPCSTR psz){
-			Init(psz, CP_UTF8);
+			Init(psz, 0);
 		}
 
 		~A2T(){
@@ -313,7 +328,7 @@ namespace ATLX{
 	{
 	public:
 		T2A(LPCWSTR psz){
-			Init(psz, CP_UTF8);
+			Init(psz, 0);
 		}
 
 		~T2A(){
