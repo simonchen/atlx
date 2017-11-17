@@ -1,4 +1,5 @@
 #pragma once
+#include "WndSuper.h"
 #include "atlx_string.h"
 
 namespace ATLX{
@@ -23,40 +24,35 @@ namespace ATLX{
 		inline void UpdateText(int nIDC, float& value);
 		inline void UpdateText(int nIDC, double& value);
 
-	private:
 		HWND m_hDlg;
 		BOOL m_bSaveAndValidate;
 	};
 
 	// simple text operations
-#define DDX_Text(pDX, nIDC, value) pDX->UpdateText(nIDC, value);
-	/*
+#define DDX_Text(pDX, nIDC, value) pDX->UpdateText(nIDC, value)
 
 	// special control types
-	void AFXAPI DDX_Check(CDataExchange* pDX, int nIDC, int& value);
-	void AFXAPI DDX_Radio(CDataExchange* pDX, int nIDC, int& value);
-	void AFXAPI DDX_LBString(CDataExchange* pDX, int nIDC, CString& value);
-	void AFXAPI DDX_CBString(CDataExchange* pDX, int nIDC, CString& value);
-	void AFXAPI DDX_LBIndex(CDataExchange* pDX, int nIDC, int& index);
-	void AFXAPI DDX_CBIndex(CDataExchange* pDX, int nIDC, int& index);
-	void AFXAPI DDX_LBStringExact(CDataExchange* pDX, int nIDC, CString& value);
-	void AFXAPI DDX_CBStringExact(CDataExchange* pDX, int nIDC, CString& value);
-	void AFXAPI DDX_Scroll(CDataExchange* pDX, int nIDC, int& value);
-	void AFXAPI DDX_Slider(CDataExchange* pDX, int nIDC, int& value);
+	void WINAPI DDX_Check(ATLX::CDataExchanger* pDX, int nIDC, int& value);
+	void WINAPI DDX_Radio(ATLX::CDataExchanger* pDX, int nIDC, int& value);
+	void WINAPI DDX_LBString(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value);
+	void WINAPI DDX_CBString(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value);
+	void WINAPI DDX_LBIndex(ATLX::CDataExchanger* pDX, int nIDC, int& index);
+	void WINAPI DDX_CBIndex(ATLX::CDataExchanger* pDX, int nIDC, int& index);
+	void WINAPI DDX_LBStringExact(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value);
+	void WINAPI DDX_CBStringExact(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value);
+	void WINAPI DDX_Scroll(ATLX::CDataExchanger* pDX, int nIDC, int& value);
+	void WINAPI DDX_Slider(ATLX::CDataExchanger* pDX, int nIDC, int& value);
 
-	void AFXAPI DDX_IPAddress(CDataExchange* pDX, int nIDC, DWORD& value);
+	void WINAPI DDX_IPAddress(ATLX::CDataExchanger* pDX, int nIDC, DWORD& value);
 
-	void AFXAPI DDX_MonthCalCtrl(CDataExchange* pDX, int nIDC, CTime& value);
-	void AFXAPI DDX_MonthCalCtrl(CDataExchange* pDX, int nIDC, COleDateTime& value);
-	void AFXAPI DDX_MonthCalCtrl(CDataExchange* pDX, int nIDC, FILETIME& value);
-	void AFXAPI DDX_DateTimeCtrl(CDataExchange* pDX, int nIDC, CString& value);
-	void AFXAPI DDX_DateTimeCtrl(CDataExchange* pDX, int nIDC, CTime& value);
-	void AFXAPI DDX_DateTimeCtrl(CDataExchange* pDX, int nIDC, COleDateTime& value);
-	void AFXAPI DDX_DateTimeCtrl(CDataExchange* pDX, int nIDC, FILETIME& value);
+	void WINAPI DDX_MonthCalCtrl(ATLX::CDataExchanger* pDX, int nIDC, time_t& value);
+	void WINAPI DDX_MonthCalCtrl(ATLX::CDataExchanger* pDX, int nIDC, FILETIME& value);
+	void WINAPI DDX_DateTimeCtrl(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value);
+	void WINAPI DDX_DateTimeCtrl(ATLX::CDataExchanger* pDX, int nIDC, SYSTEMTIME& value);
 
 	// for getting access to the actual controls
-	void AFXAPI DDX_Control(CDataExchange* pDX, int nIDC, CWnd& rControl);
-
+	void WINAPI DDX_Control(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CWndSuper& rControl);
+	/*
 	/////////////////////////////////////////////////////////////////////////////
 	// Standard Dialog Data Validation routines
 
@@ -86,4 +82,3 @@ namespace ATLX{
 	void DDV_MaxChars(CDataExchanger* pDX, ATLX::CString const& value, int nChars);
 
 }
-
