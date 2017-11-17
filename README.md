@@ -22,7 +22,7 @@ Create model / modeless dialog and processing generic events.
 
 - CString, CStringA, CStringW
 
-They intend to be used in processing of TEXT string at ending of zero
+They intend to be used in processing of TEXT string at terminating null.
 
 - string
 
