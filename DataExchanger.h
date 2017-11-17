@@ -1,4 +1,5 @@
 #pragma once
+#include <time.h>
 #include "WndSuper.h"
 #include "atlx_string.h"
 
@@ -30,6 +31,11 @@ namespace ATLX{
 
 	// simple text operations
 #define DDX_Text(pDX, nIDC, value) pDX->UpdateText(nIDC, value)
+	
+	// utility time function converting system time to time_t
+	time_t TimeFromSystemTime(const SYSTEMTIME * pTime);
+	// utility time function converting  time_t to system time
+	void TimeToSystemTime(const time_t t, SYSTEMTIME& time);
 
 	// special control types
 	void WINAPI DDX_Check(ATLX::CDataExchanger* pDX, int nIDC, int& value);

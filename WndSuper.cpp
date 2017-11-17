@@ -12,6 +12,11 @@ ATLX::CWndSuper::~CWndSuper(void)
 LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled)
 {
 	LRESULT ret = 0;
+	if (uMsg == WM_DESTROY)
+	{
+		// Safely un-subclassing window if that had one.
+		ret = UnSubclassWindow();
+	}
 
 	return ret;
 }
@@ -59,6 +64,7 @@ BOOL ATLX::CWndSuper::UnSubclassWindow()
 		return FALSE;
 
 	WNDPROC prevWndProc = (WNDPROC)::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)m_oldWndProc);
+	if (prevWndProc) m_oldWndProc = NULL; // Reset old window proc = null
 
 	return (prevWndProc != NULL);
 }

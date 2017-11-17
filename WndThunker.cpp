@@ -95,7 +95,7 @@ INT_PTR CALLBACK ATLX::CWndThunker::WindowProc(HWND hwnd,  // handle to window
 	if (pThis->m_fMsgHandled)
 		return ret;
 
-	if (!pThis->m_fDialog && pThis->m_oldDlgProc)
+	if (!pThis->m_fDialog && pThis->m_oldWndProc) // bug fixed! (pThis->m_oldDlgProc previously it was)
 		return ::CallWindowProc(pThis->m_oldWndProc, hwnd, uMsg, wParam, lParam);
 
 	return 0;

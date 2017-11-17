@@ -2,6 +2,37 @@
 #include "DataExchanger.h"
 #include "atlx_string.h"
 
+time_t ATLX::TimeFromSystemTime(const SYSTEMTIME* pTime)
+{
+	struct tm tm;
+	memset(&tm, 0, sizeof(tm));
+
+	tm.tm_year = pTime->wYear - 1900;
+	tm.tm_mon = pTime->wMonth - 1;
+	tm.tm_mday = pTime->wDay;
+
+	tm.tm_hour = pTime->wHour;
+	tm.tm_min = pTime->wMinute;
+	tm.tm_sec = pTime->wSecond;
+
+	return mktime(&tm);
+}
+
+void ATLX::TimeToSystemTime(const time_t t, SYSTEMTIME& time)
+{
+	struct tm tm;
+	memset(&tm, 0, sizeof(tm));
+	gmtime_s(&tm, &t);
+
+	time.wYear = tm.tm_year + 1900;
+	time.wMonth = tm.tm_mon + 1;
+	time.wDay = tm.tm_mday;
+
+	time.wHour = tm.tm_hour;
+	time.wMinute = tm.tm_min;
+	time.wSecond = tm.tm_sec;
+}
+
 ATLX::CDataExchanger::CDataExchanger(HWND hDlg, BOOL bSaveAndValidate/*=FALSE*/)
 {
 	m_hDlg = hDlg;
@@ -202,7 +233,7 @@ void ATLX::CDataExchanger::UpdateText(int nIDC, double& value)
 }
 
 // special control types
-void WINAPI DDX_Check(ATLX::CDataExchanger* pDX, int nIDC, int& value)
+void WINAPI ATLX::DDX_Check(ATLX::CDataExchanger* pDX, int nIDC, int& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 	if (pDX->m_bSaveAndValidate)
@@ -222,7 +253,7 @@ void WINAPI DDX_Check(ATLX::CDataExchanger* pDX, int nIDC, int& value)
 
 }
 
-void WINAPI DDX_Radio(ATLX::CDataExchanger* pDX, int nIDC, int& value)
+void WINAPI ATLX::DDX_Radio(ATLX::CDataExchanger* pDX, int nIDC, int& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
@@ -260,7 +291,7 @@ void WINAPI DDX_Radio(ATLX::CDataExchanger* pDX, int nIDC, int& value)
 		!(GetWindowLong(hCtrl, GWL_STYLE) & WS_GROUP)); // Control must be existing and can't be fallen in next group
 }
 
-void WINAPI DDX_LBString(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
+void WINAPI ATLX::DDX_LBString(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 	if (pDX->m_bSaveAndValidate)
@@ -290,7 +321,7 @@ void WINAPI DDX_LBString(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& val
 	}
 }
 
-void WINAPI DDX_LBStringExact(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
+void WINAPI ATLX::DDX_LBStringExact(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 	if (pDX->m_bSaveAndValidate)
@@ -315,7 +346,7 @@ void WINAPI DDX_LBStringExact(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString
 	}
 }
 
-void WINAPI DDX_CBString(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
+void WINAPI ATLX::DDX_CBString(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
@@ -358,7 +389,7 @@ void WINAPI DDX_CBString(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& val
 	}
 }
 
-void WINAPI DDX_CBStringExact(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
+void WINAPI ATLX::DDX_CBStringExact(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
@@ -395,7 +426,7 @@ void WINAPI DDX_CBStringExact(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString
 	}
 }
 
-void WINAPI DDX_LBIndex(ATLX::CDataExchanger* pDX, int nIDC, int& index)
+void WINAPI ATLX::DDX_LBIndex(ATLX::CDataExchanger* pDX, int nIDC, int& index)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
@@ -405,7 +436,7 @@ void WINAPI DDX_LBIndex(ATLX::CDataExchanger* pDX, int nIDC, int& index)
 		::SendMessage(hCtrl, LB_SETCURSEL, (WPARAM)index, 0L);
 }
 
-void WINAPI DDX_CBIndex(ATLX::CDataExchanger* pDX, int nIDC, int& index)
+void WINAPI ATLX::DDX_CBIndex(ATLX::CDataExchanger* pDX, int nIDC, int& index)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
@@ -416,7 +447,7 @@ void WINAPI DDX_CBIndex(ATLX::CDataExchanger* pDX, int nIDC, int& index)
 		::SendMessage(hCtrl, CB_SETCURSEL, (WPARAM)index, 0L);
 }
 
-void WINAPI DDX_Scroll(ATLX::CDataExchanger* pDX, int nIDC, int& value)
+void WINAPI ATLX::DDX_Scroll(ATLX::CDataExchanger* pDX, int nIDC, int& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
@@ -426,7 +457,7 @@ void WINAPI DDX_Scroll(ATLX::CDataExchanger* pDX, int nIDC, int& value)
 		SetScrollPos(hCtrl, SB_CTL, value, TRUE);
 }
 
-void WINAPI DDX_Slider(ATLX::CDataExchanger* pDX, int nIDC, int& value)
+void WINAPI ATLX::DDX_Slider(ATLX::CDataExchanger* pDX, int nIDC, int& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
@@ -437,7 +468,7 @@ void WINAPI DDX_Slider(ATLX::CDataExchanger* pDX, int nIDC, int& value)
 }
 
 
-void WINAPI DDX_IPAddress(ATLX::CDataExchanger* pDX, int nIDC, DWORD& value)
+void WINAPI ATLX::DDX_IPAddress(ATLX::CDataExchanger* pDX, int nIDC, DWORD& value)
 {
 	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
@@ -447,28 +478,79 @@ void WINAPI DDX_IPAddress(ATLX::CDataExchanger* pDX, int nIDC, DWORD& value)
 		::SendMessage(hCtrl, IPM_SETADDRESS, 0, (LPARAM)value);
 }
 
-void WINAPI DDX_MonthCalCtrl(ATLX::CDataExchanger* pDX, int nIDC, time_t& value)
+void WINAPI ATLX::DDX_MonthCalCtrl(ATLX::CDataExchanger* pDX, int nIDC, time_t& value)
 {
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
+	if (pDX->m_bSaveAndValidate)
+	{
+		SYSTEMTIME st;
+		MonthCal_GetToday(hCtrl, &st);
+		value = ATLX::TimeFromSystemTime(&st);
+	}
+	else
+	{
+		SYSTEMTIME st;
+		TimeToSystemTime(value, st);
+		MonthCal_SetToday(hCtrl, &st);
+	}
 }
 
-void WINAPI DDX_MonthCalCtrl(ATLX::CDataExchanger* pDX, int nIDC, FILETIME& value)
+void WINAPI ATLX::DDX_MonthCalCtrl(ATLX::CDataExchanger* pDX, int nIDC, FILETIME& value)
 {
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
+	if (pDX->m_bSaveAndValidate)
+	{
+		SYSTEMTIME st;
+		MonthCal_GetToday(hCtrl, &st);
+		SystemTimeToFileTime(&st, &value);
+	}
+	else
+	{
+		SYSTEMTIME st;
+		FileTimeToSystemTime(&value, &st);
+		MonthCal_SetToday(hCtrl, &st);
+	}
 }
 
-void WINAPI DDX_DateTimeCtrl(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
+void WINAPI ATLX::DDX_DateTimeCtrl(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString& value)
 {
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
+	if (pDX->m_bSaveAndValidate)
+	{
+		SYSTEMTIME st;
+		MonthCal_GetToday(hCtrl, &st);
+		value.format(_T("%hu-%hu-%hu %hu:%hu:%hu"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+	}
+	else
+	{
+		SYSTEMTIME st;
+		value.sscanf(_T("%hu-%hu-%hu %hu:%hu:%hu"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+		MonthCal_SetToday(hCtrl, &st);
+	}
 }
 
-void WINAPI DDX_DateTimeCtrl(ATLX::CDataExchanger* pDX, int nIDC, SYSTEMTIME& value)
+void WINAPI ATLX::DDX_DateTimeCtrl(ATLX::CDataExchanger* pDX, int nIDC, SYSTEMTIME& value)
 {
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
 
+	if (pDX->m_bSaveAndValidate)
+	{
+		MonthCal_GetToday(hCtrl, &value);
+	}
+	else
+	{
+		MonthCal_SetToday(hCtrl, &value);
+	}
 }
 
 // for getting access to the actual controls
-void WINAPI DDX_Control(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CWndSuper& rControl)
+void WINAPI ATLX::DDX_Control(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CWndSuper& rControl)
 {
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
+	if (!hCtrl) return;
 
+	rControl.SubclassWindow(hCtrl);
 }
