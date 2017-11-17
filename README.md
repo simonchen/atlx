@@ -19,6 +19,7 @@ Create model / modeless dialog and processing generic events.
 ## Utility Classes
 
 #### String
+Non thread-safe, No COW (Copy on write)
 
 - CString, CStringA, CStringW
 
