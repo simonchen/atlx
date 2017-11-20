@@ -106,17 +106,35 @@ void ATLX::CDialogx::Center()
 	SetWindowPos(m_hWnd, NULL, dx, dy, 0, 0, SWP_NOSIZE);
 }
 
+BOOL ATLX::CDialogx::UpdateData(BOOL bSaveAndValidate/*=FALSE*/)
+{
+	CDataExchanger de(m_hWnd, bSaveAndValidate);
+	DoDataExchange(&de);
+
+	return !de.m_bFail;
+}
+
+void ATLX::CDialogx::DoDataExchange(ATLX::CDataExchanger* pdx)
+{
+	// Do nothing.
+}
+
 BOOL ATLX::CDialogx::OnInitDialog()
 {
 	SetClassLong(m_hWnd, GCL_HICON, 0);
 
 	Center();
 
+	UpdateData();
+
 	return TRUE;
 }
 
 BOOL ATLX::CDialogx::OnOK()
 {
+	if (!UpdateData(TRUE))
+		return FALSE;
+
 	return ::EndDialog(m_hWnd, 0);
 }
 
