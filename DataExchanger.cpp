@@ -1,6 +1,13 @@
 #include "stdafx.h"
+#include <stdlib.h>
+#include <float.h>
 #include "DataExchanger.h"
 #include "atlx_string.h"
+
+int WINAPI ATLX::AtlxMessageBox(ATLX::CString prompt, UINT type, TCHAR* lpszCaption/*=NULL*/)
+{
+	return MessageBox(NULL, prompt, lpszCaption, type);
+}
 
 time_t ATLX::TimeFromSystemTime(const SYSTEMTIME* pTime)
 {
@@ -37,6 +44,7 @@ ATLX::CDataExchanger::CDataExchanger(HWND hDlg, BOOL bSaveAndValidate/*=FALSE*/)
 {
 	m_hDlg = hDlg;
 	m_bSaveAndValidate = bSaveAndValidate;
+	m_bFail = FALSE;
 }
 
 
@@ -527,6 +535,7 @@ void WINAPI ATLX::DDX_DateTimeCtrl(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CS
 	else
 	{
 		SYSTEMTIME st;
+		ZeroMemory(&st, sizeof(SYSTEMTIME));
 		value.sscanf(_T("%hu-%hu-%hu %hu:%hu:%hu"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 		MonthCal_SetToday(hCtrl, &st);
 	}
@@ -553,4 +562,226 @@ void WINAPI ATLX::DDX_Control(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CWndSup
 	if (!hCtrl) return;
 
 	rControl.SubclassWindow(hCtrl);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Standard Dialog Data Validation routines
+#define ATLX_PARSE_INT_RANGE _T("Enter an integer between %s and %s.")
+#define ATLX_PARSE_REAL_RANGE _T("Enter a number between %s and %s.")
+#define ATLX_PARSE_STRING_SIZE _T("Enter no more than %s characters.")
+
+void WINAPI _ATLX_FailMinMaxWithFormat(ATLX::CDataExchanger* pDX,
+	LONGLONG minVal, LONGLONG maxVal, LPCTSTR lpszFormat, TCHAR* lpszPromptFormat)
+	// error string must have '%1' and '%2' strings for min and max values
+	// since minVal and maxVal are 64-bit, lpszFormat should be "%I64d" or "%I64u"
+{
+	if (!pDX->m_bSaveAndValidate)
+	{
+		printf_s("Warning: initial dialog data is out of range.\n");
+		return;     // don't stop now
+	}
+
+	const int MINMAX_BUFFER_SIZE = 64;
+	TCHAR szMin[MINMAX_BUFFER_SIZE];
+	TCHAR szMax[MINMAX_BUFFER_SIZE];
+
+	_sntprintf_s(szMin, _countof(szMin), _countof(szMin)-1, lpszFormat, minVal);
+	_sntprintf_s(szMax, _countof(szMax), _countof(szMax)-1, lpszFormat, maxVal);
+
+	ATLX::CString prompt;
+	prompt.format(lpszPromptFormat, minVal, maxVal);
+	ATLX::AtlxMessageBox(prompt, MB_ICONEXCLAMATION);
+
+	pDX->Fail();
+}
+
+void WINAPI _ATLX_FailMinMaxReal(ATLX::CDataExchanger* pDX,
+	double minVal, double maxVal, int precision, TCHAR* lpszPromptFormat)
+	// error string must have '%1' and '%2' strings for min and max values
+	// since minVal and maxVal are 64-bit, lpszFormat should be "%I64d" or "%I64u"
+{
+	if (!pDX->m_bSaveAndValidate)
+	{
+		printf_s("Warning: initial dialog data is out of range.\n");
+		return;     // don't stop now
+	}
+
+	const int MINMAX_BUFFER_SIZE = 32;
+	TCHAR szMin[MINMAX_BUFFER_SIZE];
+	TCHAR szMax[MINMAX_BUFFER_SIZE];
+
+	_sntprintf_s(szMin, _countof(szMin), _countof(szMin) - 1, _T("%.*g"), precision, minVal);
+	_sntprintf_s(szMax, _countof(szMax), _countof(szMax) - 1, _T("%.*g"), precision, maxVal);
+
+	ATLX::CString prompt;
+	prompt.format(lpszPromptFormat, minVal, maxVal);
+	ATLX::AtlxMessageBox(prompt, MB_ICONEXCLAMATION);
+
+	pDX->Fail();
+}
+
+
+// range - value must be >= minVal and <= maxVal
+// NOTE: you will require casts for 'minVal' and 'maxVal' to use the
+//   UINT, DWORD or float types
+void WINAPI DDV_MinMaxByte(ATLX::CDataExchanger* pDX, BYTE value, BYTE minVal, BYTE maxVal)
+{
+	if (value < minVal || value > maxVal)
+		_ATLX_FailMinMaxWithFormat(pDX, minVal, maxVal, _T("%I64u"),
+		ATLX_PARSE_INT_RANGE);
+}
+
+void WINAPI DDV_MinMaxShort(ATLX::CDataExchanger* pDX, short value, short minVal, short maxVal)
+{
+	if (value < minVal || value > maxVal)
+		_ATLX_FailMinMaxWithFormat(pDX, minVal, maxVal, _T("%I64d"),
+		ATLX_PARSE_INT_RANGE);
+}
+
+void WINAPI DDV_MinMaxInt(ATLX::CDataExchanger* pDX, int value, int minVal, int maxVal)
+{
+	if (value < minVal || value > maxVal)
+		_ATLX_FailMinMaxWithFormat(pDX, minVal, maxVal, _T("%I64d"),
+		ATLX_PARSE_INT_RANGE);
+}
+
+void WINAPI DDV_MinMaxLong(ATLX::CDataExchanger* pDX, long value, long minVal, long maxVal)
+{
+	if (value < minVal || value > maxVal)
+		_ATLX_FailMinMaxWithFormat(pDX, minVal, maxVal, _T("%I64d"),
+		ATLX_PARSE_INT_RANGE);
+}
+
+void WINAPI DDV_MinMaxUInt(ATLX::CDataExchanger* pDX, UINT value, UINT minVal, UINT maxVal)
+{
+	if (value < minVal || value > maxVal)
+		_ATLX_FailMinMaxWithFormat(pDX, minVal, maxVal, _T("%I64u"),
+		ATLX_PARSE_INT_RANGE);
+}
+
+void WINAPI DDV_MinMaxDWord(ATLX::CDataExchanger* pDX, DWORD value, DWORD minVal, DWORD maxVal)
+{
+	if (value < minVal || value > maxVal)
+		_ATLX_FailMinMaxWithFormat(pDX, minVal, maxVal, _T("%I64u"),
+		ATLX_PARSE_INT_RANGE);
+}
+
+void WINAPI DDV_MinMaxLongLong(ATLX::CDataExchanger* pDX, LONGLONG value, LONGLONG minVal, LONGLONG maxVal)
+{
+	if ((value < minVal) || (value > maxVal))
+		_ATLX_FailMinMaxWithFormat(pDX, minVal, maxVal, _T("%I64d"),
+		ATLX_PARSE_INT_RANGE);
+}
+
+void WINAPI DDV_MinMaxULongLong(ATLX::CDataExchanger* pDX, ULONGLONG value, ULONGLONG minVal, ULONGLONG maxVal)
+{
+	if ((value < minVal) || (value > maxVal))
+		_ATLX_FailMinMaxWithFormat(pDX, minVal, maxVal, _T("%I64u"),
+		ATLX_PARSE_INT_RANGE);
+}
+
+void WINAPI DDV_MinMaxFloat(ATLX::CDataExchanger* pDX, float const& value, float minVal, float maxVal)
+{
+	if ((value < minVal) || (value > maxVal))
+		_ATLX_FailMinMaxReal(pDX, (double)minVal, (double)maxVal, FLT_DIG,
+		ATLX_PARSE_REAL_RANGE);
+}
+
+void WINAPI DDV_MinMaxDouble(ATLX::CDataExchanger* pDX, double const& value, double minVal, double maxVal)
+{
+	if ((value < minVal) || (value > maxVal))
+		_ATLX_FailMinMaxReal(pDX, minVal, maxVal, FLT_DIG,
+		ATLX_PARSE_REAL_RANGE);
+}
+
+// special control types
+void WINAPI DDV_MinMaxSlider(ATLX::CDataExchanger* pDX, int nIDC, DWORD value, DWORD minVal, DWORD maxVal)
+{
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
+
+	if (!pDX->m_bSaveAndValidate)
+	{
+		if (minVal > value || maxVal < value)
+		{
+			printf_s("Warning: initial dialog data is out of "
+				"range in control ID %d.\n", nIDC);
+			return;     // don't stop now
+		}
+	}
+
+	::SendMessage(hCtrl, TBM_SETRANGEMIN, FALSE, (LPARAM)minVal);
+	::SendMessage(hCtrl, TBM_SETRANGEMAX, TRUE, (LPARAM)maxVal);
+}
+
+void WINAPI DDV_MinMaxDateTime(ATLX::CDataExchanger* pDX, int nIDC, time_t& refValue, const time_t refMinRange, const time_t refMaxRange)
+{
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
+
+	if (!pDX->m_bSaveAndValidate)
+	{
+		if ((refMinRange != NULL && refMinRange > refValue) ||
+			(refMaxRange != NULL && refMaxRange < refValue))
+		{
+			printf_s("Warning: initial dialog data is out of range in "
+				"control ID %d.\n", nIDC);
+
+			return;     // don't stop now
+		}
+	}
+
+	SYSTEMTIME gst[2];
+	ZeroMemory(gst, sizeof(SYSTEMTIME) * 2);
+	ATLX::TimeToSystemTime(refMinRange, gst[0]);
+	ATLX::TimeToSystemTime(refMaxRange, gst[1]);
+	MonthCal_SetRange(hCtrl, GDTR_MIN | GDTR_MAX, gst);
+}
+
+void WINAPI DDV_MinMaxDateTime(ATLX::CDataExchanger* pDX, int nIDC, SYSTEMTIME& stValue, const SYSTEMTIME stMinRange, const SYSTEMTIME stMaxRange)
+{
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
+	
+	time_t refValue = ATLX::TimeFromSystemTime(&stValue);
+	time_t refMinRange = ATLX::TimeFromSystemTime(&stMinRange);
+	time_t refMaxRange = ATLX::TimeFromSystemTime(&stMaxRange);
+
+	if (!pDX->m_bSaveAndValidate)
+	{
+		if ((refMinRange != NULL && refMinRange > refValue) ||
+			(refMaxRange != NULL && refMaxRange < refValue))
+		{
+			printf_s("Warning: initial dialog data is out of range in "
+				"control ID %d.\n", nIDC);
+
+			return;     // don't stop now
+		}
+	}
+
+	MonthCal_SetRange(hCtrl, GDTR_MIN, &stMinRange);
+	MonthCal_SetRange(hCtrl, GDTR_MAX, &stMaxRange);
+}
+
+
+// number of characters
+void WINAPI DDV_MaxChars(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString const& value, int nChars)
+{
+	HWND hCtrl = GetDlgItem(pDX->m_hDlg, nIDC);
+
+	if (pDX->m_bSaveAndValidate && value.length() > nChars)
+	{
+		TCHAR szT[32];
+		_stprintf_s(szT, _countof(szT), _T("%d"), nChars);
+		ATLX::CString prompt;
+		prompt.format(ATLX_PARSE_STRING_SIZE, szT);
+		AtlxMessageBox(prompt, MB_ICONEXCLAMATION);
+		pDX->Fail();
+	}
+	else if (hCtrl != NULL)
+	{
+		// limit the control max-chars automatically
+		// send messages for both an edit control and a combobox control--one will
+		// be understood and one will be disregarded, but this is the only way to
+		// ensure that the characters will be limited for both kinds of controls.
+		::SendMessage(hCtrl, EM_SETLIMITTEXT, nChars, 0);
+		::SendMessage(hCtrl, CB_LIMITTEXT, nChars, 0);
+	}
 }

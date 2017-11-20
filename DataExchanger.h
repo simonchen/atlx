@@ -4,6 +4,7 @@
 #include "atlx_string.h"
 
 namespace ATLX{
+	int WINAPI AtlxMessageBox(ATLX::CString prompt, UINT type, TCHAR* lpszCaption=NULL);
 
 	class CDataExchanger
 	{
@@ -27,6 +28,9 @@ namespace ATLX{
 
 		HWND m_hDlg;
 		BOOL m_bSaveAndValidate;
+		BOOL m_bFail;
+
+		void Fail() { m_bFail = TRUE; }
 	};
 
 	// simple text operations
@@ -58,33 +62,29 @@ namespace ATLX{
 
 	// for getting access to the actual controls
 	void WINAPI DDX_Control(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CWndSuper& rControl);
-	/*
+
 	/////////////////////////////////////////////////////////////////////////////
 	// Standard Dialog Data Validation routines
 
 	// range - value must be >= minVal and <= maxVal
 	// NOTE: you will require casts for 'minVal' and 'maxVal' to use the
 	//   UINT, DWORD or float types
-	void AFXAPI DDV_MinMaxByte(CDataExchange* pDX, BYTE value, BYTE minVal, BYTE maxVal);
-	void AFXAPI DDV_MinMaxShort(CDataExchange* pDX, short value, short minVal, short maxVal);
-	void AFXAPI DDV_MinMaxInt(CDataExchange* pDX, int value, int minVal, int maxVal);
-	void AFXAPI DDV_MinMaxLong(CDataExchange* pDX, long value, long minVal, long maxVal);
-	void AFXAPI DDV_MinMaxUInt(CDataExchange* pDX, UINT value, UINT minVal, UINT maxVal);
-	void AFXAPI DDV_MinMaxDWord(CDataExchange* pDX, DWORD value, DWORD minVal, DWORD maxVal);
-	void AFXAPI DDV_MinMaxLongLong(CDataExchange* pDX, LONGLONG value, LONGLONG minVal, LONGLONG maxVal);
-	void AFXAPI DDV_MinMaxULongLong(CDataExchange* pDX, ULONGLONG value, ULONGLONG minVal, ULONGLONG maxVal);
-	void AFXAPI DDV_MinMaxFloat(CDataExchange* pDX, float const& value, float minVal, float maxVal);
-	void AFXAPI DDV_MinMaxDouble(CDataExchange* pDX, double const& value, double minVal, double maxVal);
+	void WINAPI DDV_MinMaxByte(ATLX::CDataExchanger* pDX, BYTE value, BYTE minVal, BYTE maxVal);
+	void WINAPI DDV_MinMaxShort(ATLX::CDataExchanger* pDX, short value, short minVal, short maxVal);
+	void WINAPI DDV_MinMaxInt(ATLX::CDataExchanger* pDX, int value, int minVal, int maxVal);
+	void WINAPI DDV_MinMaxLong(ATLX::CDataExchanger* pDX, long value, long minVal, long maxVal);
+	void WINAPI DDV_MinMaxUInt(ATLX::CDataExchanger* pDX, UINT value, UINT minVal, UINT maxVal);
+	void WINAPI DDV_MinMaxDWord(ATLX::CDataExchanger* pDX, DWORD value, DWORD minVal, DWORD maxVal);
+	void WINAPI DDV_MinMaxLongLong(ATLX::CDataExchanger* pDX, LONGLONG value, LONGLONG minVal, LONGLONG maxVal);
+	void WINAPI DDV_MinMaxULongLong(ATLX::CDataExchanger* pDX, ULONGLONG value, ULONGLONG minVal, ULONGLONG maxVal);
+	void WINAPI DDV_MinMaxFloat(ATLX::CDataExchanger* pDX, float const& value, float minVal, float maxVal);
+	void WINAPI DDV_MinMaxDouble(ATLX::CDataExchanger* pDX, double const& value, double minVal, double maxVal);
 
 	// special control types
-	void AFXAPI DDV_MinMaxSlider(CDataExchange* pDX, DWORD value, DWORD minVal, DWORD maxVal);
-	void AFXAPI DDV_MinMaxDateTime(CDataExchange* pDX, CTime& refValue, const CTime* refMinRange, const CTime* refMaxRange);
-	void AFXAPI DDV_MinMaxDateTime(CDataExchange* pDX, COleDateTime& refValue, const COleDateTime* refMinRange, const COleDateTime* refMaxRange);
-	void AFXAPI DDV_MinMaxMonth(CDataExchange* pDX, CTime& refValue, const CTime* pMinRange, const CTime* pMaxRange);
-	void AFXAPI DDV_MinMaxMonth(CDataExchange* pDX, COleDateTime& refValue, const COleDateTime* refMinRange, const COleDateTime* refMaxRange);
+	void WINAPI DDV_MinMaxSlider(ATLX::CDataExchanger* pDX, int nIDC, DWORD value, DWORD minVal, DWORD maxVal);
+	void WINAPI DDV_MinMaxDateTime(ATLX::CDataExchanger* pDX, int nIDC, time_t& refValue, const time_t refMinRange, const time_t refMaxRange);
 
-	*/
 	// number of characters
-	void DDV_MaxChars(CDataExchanger* pDX, ATLX::CString const& value, int nChars);
+	void WINAPI DDV_MaxChars(ATLX::CDataExchanger* pDX, int nIDC, ATLX::CString const& value, int nChars);
 
 }
