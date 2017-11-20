@@ -23,7 +23,7 @@ String contains a couple of classes as follows, they all are **Non thread-safe, 
 
 - CString, CStringA, CStringW
 
-They intend to be used in processing of TEXT string at terminating null.
+They intend to be used in processing of TEXT string with terminating null.
 
 - string
 
