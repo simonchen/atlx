@@ -211,7 +211,7 @@ BOOL ATLX::CPictureCtrl::LoadFromFile(CString &szFilePath)
 	return TRUE;
 }
 
-BOOL ATLX::CPictureCtrl::LoadFromResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType)
+BOOL ATLX::CPictureCtrl::LoadFromResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType/*=RT_RCDATA*/)
 {
 	//Set success error state
 	SetLastError(ERROR_SUCCESS);
@@ -272,7 +272,8 @@ BOOL ATLX::CPictureCtrl::LoadFromResource(HMODULE hModule, LPCTSTR lpName, LPCTS
 	m_bIsPicLoaded = TRUE;
 
 	InvalidateRect(m_hWnd, NULL, FALSE);
-	RedrawWindow(m_hWnd, NULL, NULL, RDW_UPDATENOW | RDW_ERASENOW);
+	RedrawWindow(m_hWnd, NULL, NULL, RDW_UPDATENOW | RDW_ERASENOW | RDW_INVALIDATE);
+	UpdateWindow(m_hWnd);
 
 	return TRUE;
 }

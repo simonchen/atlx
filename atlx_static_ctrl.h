@@ -45,7 +45,9 @@ namespace ATLX{
 		BOOL LoadFromStream(BYTE* pData, size_t nSize);
 
 		//Loads an image from a Resource  (OwnerDraw)
-		BOOL LoadFromResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType);
+		//Note: GDI+ can not load RT_BITMAP resouce, because they are predefined resource, they don't contains the image file header.
+		//You should always put BMP, PNG, JPG resource in RCDATA section .
+		BOOL LoadFromResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType = RT_RCDATA);
 
 		//Overload - Single load function  (OwnerDraw)
 		BOOL Load(CString &szFilePath);
