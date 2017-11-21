@@ -1,9 +1,8 @@
-#include "stdafx.h"
-#include "Dialogx.h"
+#include "atlx.h"
 
-
-ATLX::CDialogx::CDialogx(int id/*=0*/)
+ATLX::CDialogx::CDialogx(HINSTANCE hInst)
 {
+	m_hInst = hInst;
 }
 
 ATLX::CDialogx::~CDialogx()
@@ -20,11 +19,11 @@ BOOL ATLX::CDialogx::DoModal(HWND hParent, BOOL bModeless/*=FALSE*/)
 	DLGPROC proc = (DLGPROC)m_thunk->GetCodeAddress();
 	if (bModeless)
 	{
-		::DialogBox(g_hInst, MAKEINTRESOURCE(IDD), hParent, proc);//COptionsDlg::DialogProc);
+		::DialogBox(m_hInst, MAKEINTRESOURCE(IDD), hParent, proc);//COptionsDlg::DialogProc);
 	}
 	else
 	{
-		m_hWnd = ::CreateDialog(NULL, MAKEINTRESOURCE(IDD), m_hParent, proc);
+		m_hWnd = ::CreateDialog(m_hInst, MAKEINTRESOURCE(IDD), m_hParent, proc);
 		::ShowWindow(m_hWnd, SW_SHOW);
 	}
 

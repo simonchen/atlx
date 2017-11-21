@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "atlx.h"
 #include "WndThunker.h"
 
 HANDLE ATLX::CWndThunker::s_hPrivHeap = NULL;

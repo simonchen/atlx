@@ -1,8 +1,5 @@
-#include "stdafx.h"
-#include <stdlib.h>
-#include <float.h>
-#include "DataExchanger.h"
-#include "atlx_string.h"
+#include "atlx.h"
+
 
 int WINAPI ATLX::AtlxMessageBox(ATLX::CString prompt, UINT type, TCHAR* lpszCaption/*=NULL*/)
 {

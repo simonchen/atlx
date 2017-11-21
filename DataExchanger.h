@@ -1,7 +1,6 @@
 #pragma once
-#include <time.h>
+
 #include "WndSuper.h"
-#include "atlx_string.h"
 
 namespace ATLX{
 	int WINAPI AtlxMessageBox(ATLX::CString prompt, UINT type, TCHAR* lpszCaption=NULL);

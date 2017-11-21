@@ -1,7 +1,6 @@
 #pragma once
 
 #include "WndSuper.h"
-#include "atlx_string.h"
 
 namespace ATLX{
 
@@ -30,20 +29,25 @@ namespace ATLX{
 		virtual BOOL Create(LPCTSTR lpszText, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 
 	public:
+		// Set Icon for static control
+		BOOL SetIcon(HICON hIcon);
 
-		//Loads an image from a file
+		// Set Bitmap for static control
+		BOOL SetBitmap(HBITMAP hBitmap);
+
+		//Loads an image from a file (OwnerDraw)
 		BOOL LoadFromFile(CString &szFilePath);
 
-		//Loads an image from an IStream interface
+		//Loads an image from an IStream interface (OwnerDraw)
 		BOOL LoadFromStream(IStream* piStream);
 
-		//Loads an image from a byte stream;
+		//Loads an image from a byte stream  (OwnerDraw)
 		BOOL LoadFromStream(BYTE* pData, size_t nSize);
 
-		//Loads an image from a Resource
+		//Loads an image from a Resource  (OwnerDraw)
 		BOOL LoadFromResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType);
 
-		//Overload - Single load function
+		//Overload - Single load function  (OwnerDraw)
 		BOOL Load(CString &szFilePath);
 		BOOL Load(IStream* piStream);
 		BOOL Load(BYTE* pData, size_t nSize);

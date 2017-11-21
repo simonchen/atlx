@@ -4,11 +4,9 @@
 *
 ***********************************************************************/
 
-#include "locale.h"
-
 #pragma once
 namespace ATLX{
-	
+
 	// Basic string template class, usage is more likely close to STL std::basic_string
 	// Note: it doesn't support COW (Copy on write), and it's non thread-safe.
 	template <class _Elem>
@@ -182,7 +180,7 @@ namespace ATLX{
 			}
 			else if (sizeof(_Elem) == sizeof(char))
 			{
-				size_t lens = _vscprintf((LPCSTR)fmt, args); 
+				size_t lens = _vscprintf((LPCSTR)fmt, args);
 				if (lens > 0)
 				{
 					lens += 1; // _vscprintf doesn't count terminating '\0' 

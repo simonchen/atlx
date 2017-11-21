@@ -1,7 +1,5 @@
 #pragma once
 
-#include <windows.h>
-
 namespace ATLX{
 
 #if defined(_M_IX86)

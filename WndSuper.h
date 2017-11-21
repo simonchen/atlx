@@ -1,7 +1,7 @@
 #pragma once
 
-#include "WndThunker.h"
 #include "atlx_string.h"
+#include "WndThunker.h"
 
 namespace ATLX{
 
@@ -38,6 +38,40 @@ namespace ATLX{
 
 		void SetWindowText(TCHAR* pszText);
 		ATLX::CString GetWindowText() const;
+
+		BOOL GetWindowRect(LPRECT lpRect) const
+		{
+			return ::GetWindowRect(m_hWnd, lpRect);
+		}
+
+		BOOL GetClientRect(LPRECT lpRect) const
+		{
+			return ::GetClientRect(m_hWnd, lpRect);
+		}
+
+		BOOL ClientToScreen(LPPOINT lpPoint) const 
+		{
+			return ::ClientToScreen(m_hWnd, lpPoint);
+		}
+
+		BOOL ClientToScreen(LPRECT lpRect) const 
+		{
+			if (!::ClientToScreen(m_hWnd, (LPPOINT)lpRect))
+				return FALSE;
+			return ::ClientToScreen(m_hWnd, ((LPPOINT)lpRect) + 1);
+		}
+
+		BOOL ScreenToClient(LPPOINT lpPoint) const
+		{
+			return ::ScreenToClient(m_hWnd, lpPoint);
+		}
+
+		BOOL ScreenToClient(LPRECT lpRect) const
+		{
+			if (!::ScreenToClient(m_hWnd, (LPPOINT)lpRect))
+				return FALSE;
+			return ::ScreenToClient(m_hWnd, ((LPPOINT)lpRect) + 1);
+		}
 
 	protected:
 		void OnPaint(HDC hdc);

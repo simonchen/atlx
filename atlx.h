@@ -22,12 +22,34 @@
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 
+// Standard C headers
 #include <stdio.h>
+#include <stdlib.h>
+#include <float.h>
+#include <time.h>
+#include <locale.h>
+
 // Windows Header Files:
 #include <windows.h>
 #include <tchar.h>
 #include <psapi.h>
 #include <commctrl.h>
 
+#include <Ole2.h>
+#include <objidl.h>
+#include <gdiplus.h>
+using namespace Gdiplus;
+
 #pragma comment(lib, "psapi.lib")
 #pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "gdiplus.lib")
+
+// atlx headers for Utils
+#include "atlx_string.h"
+
+// atlx headers for Window controls
+#include "WndThunker.h"
+#include "WndSuper.h"
+#include "DataExchanger.h"
+#include "Dialogx.h"
+#include "atlx_static_ctrl.h"

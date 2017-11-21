@@ -1,8 +1,5 @@
-#include "stdafx.h"
+#include "atlx.h"
 #include "atlx_static_ctrl.h"
-#include <Ole2.h>
-#include <GdiPlus.h>
-using namespace Gdiplus;
 
 //////////////////////////////////////////////////////////////////////////
 // CStatic
@@ -60,6 +57,24 @@ ATLX::CPictureCtrl::~CPictureCtrl(void)
 BOOL ATLX::CPictureCtrl::Create(LPCTSTR lpszText, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
 {
 	return CWndSuper::Create(_T("STATIC"), lpszText, dwStyle | SS_OWNERDRAW, rect, pParentWnd, nID);
+}
+
+void ATLX::CPictureCtrl::PreSubclassWindow()
+{
+	CStatic::PreSubclassWindow();
+	ModifyStyle(0, SS_OWNERDRAW);
+}
+
+BOOL ATLX::CPictureCtrl::SetIcon(HICON hIcon)
+{
+	ModifyStyle(SS_OWNERDRAW | SS_ICON | SS_ENHMETAFILE | SS_ETCHEDHORZ | SS_ETCHEDVERT | SS_ETCHEDFRAME, SS_ICON);
+	return (NULL != ::SendMessage(m_hWnd, STM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)hIcon));
+}
+
+BOOL ATLX::CPictureCtrl::SetBitmap(HBITMAP hBitmap)
+{
+	ModifyStyle(SS_OWNERDRAW | SS_BITMAP | SS_ENHMETAFILE | SS_ETCHEDHORZ | SS_ETCHEDVERT | SS_ETCHEDFRAME, SS_BITMAP);
+	return (NULL != ::SendMessage(m_hWnd, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap));
 }
 
 BOOL ATLX::CPictureCtrl::LoadFromStream(IStream *piStream)
@@ -289,12 +304,6 @@ void ATLX::CPictureCtrl::FreeData()
 	SAFE_RELEASE(m_pStream);
 }
 
-void ATLX::CPictureCtrl::PreSubclassWindow()
-{
-	CStatic::PreSubclassWindow();
-	ModifyStyle(0, SS_OWNERDRAW);
-}
-
 void ATLX::CPictureCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
 	//Check if pic data is loaded
@@ -312,7 +321,7 @@ void ATLX::CPictureCtrl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	}
 }
 
-BOOL ATLX::CPictureCtrl::OnEraseBkgnd(CDC *pDC)
+BOOL ATLX::CPictureCtrl::OnEraseBkgnd(HDC hdc)
 {
 	if (m_bIsPicLoaded)
 	{
@@ -321,7 +330,7 @@ BOOL ATLX::CPictureCtrl::OnEraseBkgnd(CDC *pDC)
 		RECT rc;
 		this->GetClientRect(&rc);
 
-		Graphics graphics(pDC->GetSafeHdc());
+		Graphics graphics(hdc);
 		LARGE_INTEGER liSeekPos;
 		liSeekPos.QuadPart = 0;
 		m_pStream->Seek(liSeekPos, STREAM_SEEK_SET, NULL);
@@ -331,6 +340,6 @@ BOOL ATLX::CPictureCtrl::OnEraseBkgnd(CDC *pDC)
 	}
 	else
 	{
-		return CStatic::OnEraseBkgnd(pDC);
+		return CStatic::OnEraseBkgnd(hdc);
 	}
 }
