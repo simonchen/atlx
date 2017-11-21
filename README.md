@@ -37,6 +37,7 @@ This intends to be used in processing of SINGLE BYTE(CHAR)
 
 ## Code rules
 - No exception handler (such as Memory allocation failures)
+- No [SAL](https://msdn.microsoft.com/en-us/library/hh916383.aspx) (Source code annotation)
 - Naming rules are almost close to [MFC](https://en.wikipedia.org/wiki/Microsoft_Foundation_Class_Library) 
 
 ## References
