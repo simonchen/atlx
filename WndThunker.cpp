@@ -37,6 +37,11 @@ ATLX::CWndThunker::CWndThunker(void) : m_fDialog(FALSE), m_oldDlgProc(NULL), m_o
 
 ATLX::CWndThunker::~CWndThunker(void)
 {
+	Delete();
+}
+
+void ATLX::CWndThunker::Delete()
+{
 	if (m_thunk)
 	{
 		HeapFree(s_hPrivHeap, 0, m_thunk);//MEM_RELEASE);
@@ -47,6 +52,18 @@ ATLX::CWndThunker::~CWndThunker(void)
 		HeapFree(s_hPrivHeap, 0, m_thunk2);//MEM_RELEASE);
 		m_thunk2 = NULL;
 	}
+}
+
+BOOL ATLX::CWndThunker::Destroy()
+{
+	if (!::IsWindow(m_hWnd))
+		return FALSE;
+
+	BOOL bSuccess = DestroyWindow(m_hWnd);
+	if (bSuccess)
+		m_hWnd = NULL;
+
+	return bSuccess;
 }
 
 INT_PTR CALLBACK ATLX::CWndThunker::StartWindowProc(HWND hwnd,  // handle to window

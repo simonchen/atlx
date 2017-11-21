@@ -1,8 +1,11 @@
 #include "atlx.h"
 
-ATLX::CDialogx::CDialogx(HINSTANCE hInst)
+ATLX::CDialogx::CDialogx(UINT IDD, HINSTANCE hInst)
 {
+	m_fDialog = TRUE;
 	m_hInst = hInst;
+	m_IDD = IDD;
+	m_bModeless = FALSE;
 }
 
 ATLX::CDialogx::~CDialogx()
@@ -14,17 +17,38 @@ BOOL ATLX::CDialogx::DoModal(HWND hParent, BOOL bModeless/*=FALSE*/)
 	if (hParent && !::IsWindow(hParent))
 		return FALSE;
 
+	m_bModeless = bModeless;
+
 	m_hParent = hParent;
 	m_thunk->Init((DWORD_PTR)StartWindowProc, this);
 	DLGPROC proc = (DLGPROC)m_thunk->GetCodeAddress();
-	if (bModeless)
+	if (!bModeless)
 	{
-		::DialogBox(m_hInst, MAKEINTRESOURCE(IDD), hParent, proc);//COptionsDlg::DialogProc);
+		::DialogBox(m_hInst, MAKEINTRESOURCE(m_IDD), hParent, proc);//COptionsDlg::DialogProc);
 	}
 	else
 	{
-		m_hWnd = ::CreateDialog(m_hInst, MAKEINTRESOURCE(IDD), m_hParent, proc);
-		::ShowWindow(m_hWnd, SW_SHOW);
+		m_hWnd = ::CreateDialog(m_hInst, MAKEINTRESOURCE(m_IDD), m_hParent, proc);
+		if (::IsWindow(m_hWnd))
+		{
+			::ShowWindow(m_hWnd, SW_SHOW);
+			BOOL bRet;
+			MSG msg;
+			while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0 &&
+				IsWindow(m_hWnd))
+			{
+				if (bRet == -1)
+				{
+					// Handle the error and possibly exit
+					break;
+				}
+				else if (!IsWindow(m_hWnd) || !IsDialogMessage(m_hWnd, &msg))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+			}
+		}
 	}
 
 	return TRUE;
@@ -65,7 +89,7 @@ LRESULT ATLX::CDialogx::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 	break;
 	case WM_KEYDOWN:
 	{
-		
+
 	}
 	break;
 	case WM_CLOSE:
@@ -73,9 +97,15 @@ LRESULT ATLX::CDialogx::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 		ret = OnClose();
 	}
 	break;
+	case WM_DRAWITEM:
+	{
+		UINT nID = (UINT)wParam;
+		LPDRAWITEMSTRUCT pdis = (LPDRAWITEMSTRUCT)lParam;
+	}
+	break;
 	}
 
-	::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
+	//::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 
 	return ret;
 }
@@ -134,15 +164,24 @@ BOOL ATLX::CDialogx::OnOK()
 	if (!UpdateData(TRUE))
 		return FALSE;
 
+	if (m_bModeless)
+		return Destroy();
+
 	return ::EndDialog(m_hWnd, 0);
 }
 
 BOOL ATLX::CDialogx::OnCancel()
 {
+	if (m_bModeless)
+		return Destroy();
+
 	return ::EndDialog(m_hWnd, 0);
 }
 
 BOOL ATLX::CDialogx::OnClose()
 {
+	if (m_bModeless)
+		return Destroy();
+
 	return ::EndDialog(m_hWnd, 0);
 }

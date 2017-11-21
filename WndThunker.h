@@ -80,6 +80,12 @@ namespace ATLX{
 		struct _stdcallthunk *m_thunk;
 		struct _stdcallthunk *m_thunk2;
 
+		// Delete thunks
+		void Delete();
+
+		// Destroy window
+		BOOL Destroy();
+
 		static INT_PTR CALLBACK WindowProc(HWND hwnd,  // handle to window
 			UINT uMsg,     // message  WPARAM wParam, 
 			WPARAM wParam, // first message parameter

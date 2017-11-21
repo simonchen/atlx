@@ -59,26 +59,19 @@ BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWOR
 	return ::IsWindow(m_hWnd);
 }
 
-BOOL ATLX::CWndSuper::Destory()
-{
-	if (!::IsWindow(m_hWnd))
-		return FALSE;
-
-	return DestroyWindow(m_hWnd);
-}
-
 BOOL ATLX::CWndSuper::SubclassWindow(HWND hWnd)
 {
 	if (m_oldWndProc)
 		return FALSE; // Already subclassed?
 
-	PreSubclassWindow();
-
 	m_thunk2->Init((DWORD_PTR)WindowProc, this);
 	WNDPROC pProc = (WNDPROC)m_thunk2->GetCodeAddress();
 	m_oldWndProc = (WNDPROC)::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)pProc);
 	if (m_oldWndProc != NULL)
+	{
 		m_hWnd = hWnd;
+		PreSubclassWindow(); // Prepare subclassing window
+	}
 
 	return (m_oldWndProc != NULL);
 }

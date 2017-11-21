@@ -18,9 +18,6 @@ namespace ATLX{
 		// Create window, when you don't need the window, you should call Destory()
 		virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 
-		// Destory window
-		virtual BOOL Destory();
-
 		CWndSuper* m_pParent;
 		HWND m_hWnd;
 

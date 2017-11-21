@@ -1,6 +1,7 @@
 #pragma once
 
-#include "WndThunker.h"
+#include "WndSuper.h"
+#include "DataExchanger.h"
 
 namespace ATLX {
 
@@ -10,7 +11,7 @@ namespace ATLX {
 	{
 	public:
 		// If you use Dialog in Dynamic-Link library, you should set hInst.
-		CDialogx(HINSTANCE hInst=NULL);
+		CDialogx(UINT IDD=0, HINSTANCE hInst=NULL);
 		virtual ~CDialogx();
 
 		enum { IDD = 0 }; // Overrides to assigning resource ID.
@@ -33,6 +34,8 @@ namespace ATLX {
 		virtual void DoDataExchange(ATLX::CDataExchanger* pdx);
 
 	protected:
+		UINT m_IDD;
+		BOOL m_bModeless;
 		HWND m_hParent;
 		HINSTANCE m_hInst;
 	};
