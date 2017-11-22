@@ -12,10 +12,13 @@ ATLX::CWndSuper::~CWndSuper(void)
 LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled)
 {
 	LRESULT ret = 0;
+	if (uMsg == WM_CREATE)
+	{
+		OnCreate((LPCREATESTRUCT)lParam);
+	}
 	if (uMsg == WM_DESTROY)
 	{
-		// Safely un-subclassing window if that had one.
-		ret = UnSubclassWindow();
+		OnDestroy();
 	}
 	if (uMsg == WM_PAINT)
 	{
@@ -38,8 +41,6 @@ LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
 {
-	m_thunk->Init((DWORD_PTR)StartWindowProc, this);
-
 	HWND hWndParent = NULL;
 	if (pParentWnd)
 	{
@@ -55,6 +56,8 @@ BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWOR
 		rect.bottom - rect.top, 
 		hWndParent,
 		(HMENU)nID, NULL, NULL);
+
+	m_hWnd && SubclassWindow(m_hWnd);
 
 	return ::IsWindow(m_hWnd);
 }
@@ -146,6 +149,17 @@ ATLX::CString ATLX::CWndSuper::GetWindowText() const
 	::GetWindowText(m_hWnd, szBuff, nLens);
 
 	return str;
+}
+
+BOOL ATLX::CWndSuper::OnCreate(LPCREATESTRUCT pcs)
+{
+	return TRUE;
+}
+
+void ATLX::CWndSuper::OnDestroy()
+{
+	// Safely un-subclassing window if that had one.
+	UnSubclassWindow();
 }
 
 void ATLX::CWndSuper::OnPaint(HDC hdc)

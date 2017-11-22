@@ -70,6 +70,10 @@ namespace ATLX{
 		}
 
 	protected:
+		virtual BOOL OnCreate(LPCREATESTRUCT pcs);
+
+		virtual void OnDestroy();
+
 		virtual void OnPaint(HDC hdc);
 
 		virtual BOOL OnEraseBkgnd(HDC hdc);
