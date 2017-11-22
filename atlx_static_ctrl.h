@@ -26,7 +26,7 @@ namespace ATLX{
 		//Destructor
 		~CPictureCtrl(void);
 
-		virtual BOOL Create(LPCTSTR lpszText, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
+		virtual BOOL Create(DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 
 	public:
 		// Set Icon for static control

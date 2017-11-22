@@ -1,7 +1,7 @@
 #include "atlx.h"
 #include "WndSuper.h"
 
-ATLX::CWndSuper::CWndSuper(void) : m_pParent(NULL), m_hWnd(NULL)
+ATLX::CWndSuper::CWndSuper(void) : m_pParent(NULL)
 {
 }
 

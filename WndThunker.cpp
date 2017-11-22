@@ -3,7 +3,7 @@
 
 HANDLE ATLX::CWndThunker::s_hPrivHeap = NULL;
 
-ATLX::CWndThunker::CWndThunker(void) : m_fDialog(FALSE), m_oldDlgProc(NULL), m_oldWndProc(NULL), m_fMsgHandled(FALSE)
+ATLX::CWndThunker::CWndThunker(void) : m_hWnd(NULL), m_fDialog(FALSE), m_oldDlgProc(NULL), m_oldWndProc(NULL), m_fMsgHandled(FALSE)
 {
 	// Uses Heap to construct the thunk(s) for avoiding DEP (Data Execution Prevention)
 	if (!s_hPrivHeap)

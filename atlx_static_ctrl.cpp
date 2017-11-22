@@ -54,9 +54,9 @@ ATLX::CPictureCtrl::~CPictureCtrl(void)
 	GdiplusShutdown(m_gdiplusToken);
 }
 
-BOOL ATLX::CPictureCtrl::Create(LPCTSTR lpszText, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+BOOL ATLX::CPictureCtrl::Create(DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
 {
-	return CWndSuper::Create(_T("STATIC"), lpszText, dwStyle | SS_OWNERDRAW, rect, pParentWnd, nID);
+	return CStatic::Create(NULL, dwStyle | SS_OWNERDRAW, rect, pParentWnd, nID);
 }
 
 void ATLX::CPictureCtrl::PreSubclassWindow()

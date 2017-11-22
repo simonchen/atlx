@@ -19,7 +19,6 @@ namespace ATLX{
 		virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 
 		CWndSuper* m_pParent;
-		HWND m_hWnd;
 
 		BOOL SubclassWindow(HWND hWnd);
 		virtual void PreSubclassWindow();
@@ -71,11 +70,11 @@ namespace ATLX{
 		}
 
 	protected:
-		void OnPaint(HDC hdc);
+		virtual void OnPaint(HDC hdc);
 
-		BOOL OnEraseBkgnd(HDC hdc);
+		virtual BOOL OnEraseBkgnd(HDC hdc);
 
-		void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
+		virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
 	};
 
 }

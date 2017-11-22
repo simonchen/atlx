@@ -7,7 +7,7 @@ namespace ATLX {
 
 	// Base class - CDialogx
 	class CDialogx :
-		public ATLX::CWndThunker
+		public ATLX::CWndSuper
 	{
 	public:
 		// If you use Dialog in Dynamic-Link library, you should set hInst.
@@ -27,6 +27,7 @@ namespace ATLX {
 		virtual BOOL OnOK();
 		virtual BOOL OnCancel();
 		virtual BOOL OnClose();
+		virtual BOOL OnDrawItem(LPDRAWITEMSTRUCT pdis);
 
 		void Center();
 

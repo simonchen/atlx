@@ -99,8 +99,24 @@ LRESULT ATLX::CDialogx::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 	break;
 	case WM_DRAWITEM:
 	{
+		// Owner-draw for Static, Button, ListCtrl, Listbox, Menu
 		UINT nID = (UINT)wParam;
 		LPDRAWITEMSTRUCT pdis = (LPDRAWITEMSTRUCT)lParam;
+		OnDrawItem(pdis); // Handled by Dialog
+
+		HWND hCtrl = ::GetDlgItem(m_hWnd, nID);
+		if (hCtrl)
+		// Reflecting same message to control to process further.
+		{
+			if (nID)
+			{
+				::SendMessage(hCtrl, WM_DRAWITEM, wParam, lParam);
+			}
+			else
+			{
+				// Draw menu item in here.
+			}
+		}
 	}
 	break;
 	}
@@ -116,13 +132,13 @@ void ATLX::CDialogx::Center()
 	int h = GetSystemMetrics(SM_CYSCREEN);
 
 	RECT rcDlg;
-	GetWindowRect(m_hWnd, &rcDlg);
+	::GetWindowRect(m_hWnd, &rcDlg);
 
 	int dx = 0, dy = 0;
 	if (m_hParent && ::IsWindowVisible(m_hParent))
 	{
 		RECT rcParent;
-		GetWindowRect(m_hParent, &rcParent);
+		::GetWindowRect(m_hParent, &rcParent);
 		dx = rcParent.left + (rcParent.right - rcParent.left) / 2 - (rcDlg.right - rcDlg.left) / 2;
 		dy = rcParent.top + (rcParent.bottom - rcParent.top) / 2 - (rcDlg.bottom - rcDlg.top) / 2;
 	}
@@ -184,4 +200,11 @@ BOOL ATLX::CDialogx::OnClose()
 		return Destroy();
 
 	return ::EndDialog(m_hWnd, 0);
+}
+
+BOOL ATLX::CDialogx::OnDrawItem(LPDRAWITEMSTRUCT pdis)
+{
+	// Do nothing.
+
+	return FALSE;
 }
