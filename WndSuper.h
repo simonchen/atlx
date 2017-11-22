@@ -16,6 +16,8 @@ namespace ATLX{
 		virtual LRESULT ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled);
 
 		// Create window, when you don't need the window, you should call Destory()
+		// If you're creating system class (such as Static, Button, ListCtrl, Listbox, etc.), you won't receive WM_CREATE message,
+		// therefore, OnCreate event won't work in this case.
 		virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 
 		CWndSuper* m_pParent;
