@@ -21,7 +21,40 @@ BOOL ATLX::CStatic::Create(LPCTSTR lpszText, DWORD dwStyle, const RECT& rect, CW
 void ATLX::CStatic::PreSubclassWindow()
 {
 	CWndSuper::PreSubclassWindow();
+	// By default, Text will be centered.
 	ModifyStyle(0, SS_CENTER);
+}
+
+HICON ATLX::CStatic::SetIcon(HICON hIcon)
+// To set Icon properly, you have to set SS_ICON style
+{
+	return (HICON)::SendMessage(m_hWnd, STM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)hIcon);
+}
+
+HICON ATLX::CStatic::GetIcon() const
+{
+	return (HICON)::SendMessage(m_hWnd, STM_GETIMAGE, (WPARAM)IMAGE_ICON, 0);
+}
+
+HBITMAP ATLX::CStatic::SetBitmap(HBITMAP hBitmap)
+// To set Bitmap properly, you have to set SS_BITMAP style
+{
+	return (HBITMAP)::SendMessage(m_hWnd, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
+}
+
+HBITMAP ATLX::CStatic::GetBitmap() const
+{
+	return (HBITMAP)::SendMessage(m_hWnd, STM_GETIMAGE, (WPARAM)IMAGE_BITMAP, 0);
+}
+
+HCURSOR ATLX::CStatic::SetCursor(HCURSOR hCursor)
+{
+	return (HCURSOR)::SendMessage(m_hWnd, STM_SETIMAGE, (WPARAM)IMAGE_CURSOR, (LPARAM)hCursor);
+}
+
+HCURSOR ATLX::CStatic::GetCursor() const
+{
+	return (HCURSOR)::SendMessage(m_hWnd, STM_GETIMAGE, (WPARAM)IMAGE_CURSOR, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -62,19 +95,8 @@ BOOL ATLX::CPictureCtrl::Create(DWORD dwStyle, const RECT& rect, CWndSuper* pPar
 void ATLX::CPictureCtrl::PreSubclassWindow()
 {
 	CStatic::PreSubclassWindow();
+	// By default, CStatic uses owner draw style.
 	ModifyStyle(0, SS_OWNERDRAW);
-}
-
-BOOL ATLX::CPictureCtrl::SetIcon(HICON hIcon)
-{
-	ModifyStyle(SS_OWNERDRAW | SS_ICON | SS_ENHMETAFILE | SS_ETCHEDHORZ | SS_ETCHEDVERT | SS_ETCHEDFRAME, SS_ICON);
-	return (NULL != ::SendMessage(m_hWnd, STM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)hIcon));
-}
-
-BOOL ATLX::CPictureCtrl::SetBitmap(HBITMAP hBitmap)
-{
-	ModifyStyle(SS_OWNERDRAW | SS_BITMAP | SS_ENHMETAFILE | SS_ETCHEDHORZ | SS_ETCHEDVERT | SS_ETCHEDFRAME, SS_BITMAP);
-	return (NULL != ::SendMessage(m_hWnd, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap));
 }
 
 BOOL ATLX::CPictureCtrl::LoadFromStream(IStream *piStream)

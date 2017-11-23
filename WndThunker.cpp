@@ -37,7 +37,8 @@ ATLX::CWndThunker::CWndThunker(void) : m_hWnd(NULL), m_fDialog(FALSE), m_oldDlgP
 
 ATLX::CWndThunker::~CWndThunker(void)
 {
-	Delete();
+	Destroy(); // Destroy window
+	Delete(); // Delete thunkers
 }
 
 void ATLX::CWndThunker::Delete()

@@ -11,6 +11,18 @@ namespace ATLX{
 
 		virtual BOOL Create(LPCTSTR lpszText, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 
+		HICON SetIcon(HICON hIcon);
+
+		HICON GetIcon() const;
+
+		HBITMAP SetBitmap(HBITMAP hBitmap);
+
+		HBITMAP GetBitmap() const;
+
+		HCURSOR SetCursor(HCURSOR hCursor);
+
+		HCURSOR GetCursor() const;
+
 	protected:
 		virtual void PreSubclassWindow();
 	};
@@ -29,12 +41,6 @@ namespace ATLX{
 		virtual BOOL Create(DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 
 	public:
-		// Set Icon for static control
-		BOOL SetIcon(HICON hIcon);
-
-		// Set Bitmap for static control
-		BOOL SetBitmap(HBITMAP hBitmap);
-
 		//Loads an image from a file (OwnerDraw)
 		BOOL LoadFromFile(CString &szFilePath);
 
