@@ -181,7 +181,7 @@ BOOL ATLX::CDialogx::OnOK()
 		return FALSE;
 
 	if (m_bModeless)
-		return Destroy();
+		return DestroyWindow();
 
 	return ::EndDialog(m_hWnd, 0);
 }
@@ -189,7 +189,7 @@ BOOL ATLX::CDialogx::OnOK()
 BOOL ATLX::CDialogx::OnCancel()
 {
 	if (m_bModeless)
-		return Destroy();
+		return DestroyWindow();
 
 	return ::EndDialog(m_hWnd, 0);
 }
@@ -197,7 +197,7 @@ BOOL ATLX::CDialogx::OnCancel()
 BOOL ATLX::CDialogx::OnClose()
 {
 	if (m_bModeless)
-		return Destroy();
+		return DestroyWindow();
 
 	return ::EndDialog(m_hWnd, 0);
 }

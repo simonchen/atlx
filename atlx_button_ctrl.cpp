@@ -15,6 +15,14 @@ ATLX::CButton::~CButton()
 
 }
 
+void ATLX::CButton::PreSubclassWindow()
+{
+	CWndSuper::PreSubclassWindow();
+
+	// If you want owner-draw button, please enable BS_OWNERDRAW style
+	// ModifyStyle(0, BS_OWNERDRAW);
+}
+
 void ATLX::CButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
 	// Do nothing

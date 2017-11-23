@@ -53,3 +53,5 @@ using namespace Gdiplus;
 #include "DataExchanger.h"
 #include "Dialogx.h"
 #include "atlx_static_ctrl.h"
+#include "atlx_button_ctrl.h"
+#include "atlx_edit_ctrl.h"

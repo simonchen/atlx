@@ -37,11 +37,11 @@ ATLX::CWndThunker::CWndThunker(void) : m_hWnd(NULL), m_fDialog(FALSE), m_oldDlgP
 
 ATLX::CWndThunker::~CWndThunker(void)
 {
-	Destroy(); // Destroy window
-	Delete(); // Delete thunkers
+	DestroyWindow(); // Destroy window
+	DeleteThunker(); // Delete thunker
 }
 
-void ATLX::CWndThunker::Delete()
+void ATLX::CWndThunker::DeleteThunker()
 {
 	if (m_thunk)
 	{
@@ -55,12 +55,12 @@ void ATLX::CWndThunker::Delete()
 	}
 }
 
-BOOL ATLX::CWndThunker::Destroy()
+BOOL ATLX::CWndThunker::DestroyWindow()
 {
 	if (!::IsWindow(m_hWnd))
 		return FALSE;
 
-	BOOL bSuccess = DestroyWindow(m_hWnd);
+	BOOL bSuccess = ::DestroyWindow(m_hWnd);
 	if (bSuccess)
 		m_hWnd = NULL;
 

@@ -27,6 +27,8 @@ namespace ATLX{
 		HCURSOR GetCursor();
 
 	protected:
+		virtual void PreSubclassWindow();
+
 		// Overridables (for owner draw only)
 		virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
 		virtual BOOL OnEraseBkgnd(HDC hdc);

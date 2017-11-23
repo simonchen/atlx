@@ -36,27 +36,79 @@ LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam,
 	return ret;
 }
 
-BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const int x, const int y, const int nWidth, const int nHeight, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
 {
 	HWND hWndParent = NULL;
 	if (pParentWnd)
-	{
 		hWndParent = pParentWnd->m_hWnd;
-		m_pParent = pParentWnd;
-	}
-	m_hWnd = ::CreateWindow(lpszClassName, 
-		lpszWindowName, 
-		dwStyle, 
-		rect.left, 
-		rect.top, 
-		rect.right - rect.left, 
-		rect.bottom - rect.top, 
+	m_hWnd = ::CreateWindow(lpszClassName,
+		lpszWindowName,
+		dwStyle,
+		x,
+		y,
+		nWidth,
+		nHeight,
 		hWndParent,
 		(HMENU)nID, NULL, NULL);
+
+	if (::IsWindow(m_hWnd))
+		m_pParent = pParentWnd;
 
 	m_hWnd && SubclassWindow(m_hWnd);
 
 	return ::IsWindow(m_hWnd);
+}
+
+BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+{
+	return Create(lpszClassName,
+		lpszWindowName,
+		dwStyle,
+		rect.left,
+		rect.top,
+		rect.right - rect.left,
+		rect.bottom - rect.top,
+		pParentWnd,
+		nID);
+}
+
+BOOL ATLX::CWndSuper::CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int nWidth, int nHeight, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+{
+	HWND hWndParent = NULL;
+	if (pParentWnd)
+		hWndParent = pParentWnd->m_hWnd;
+
+	m_hWnd = ::CreateWindowEx(dwExStyle,
+		lpszClassName,
+		lpszWindowName,
+		dwStyle,
+		x,
+		y,
+		nWidth,
+		nHeight,
+		hWndParent,
+		(HMENU)nID, NULL, NULL);
+
+	if (::IsWindow(m_hWnd))
+		m_pParent = pParentWnd;
+
+	m_hWnd && SubclassWindow(m_hWnd);
+
+	return ::IsWindow(m_hWnd);
+}
+
+BOOL ATLX::CWndSuper::CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+{
+	return CreateEx(lpszClassName,
+		lpszWindowName,
+		dwStyle,
+		dwExStyle,
+		rect.left,
+		rect.top,
+		rect.right - rect.left,
+		rect.bottom - rect.top,
+		pParentWnd,
+		nID);
 }
 
 BOOL ATLX::CWndSuper::SubclassWindow(HWND hWnd)
