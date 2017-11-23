@@ -48,6 +48,27 @@ namespace ATLX{
 			return *this;
 		}
 
+		// Comparing string only applying TEXT with ternimating null.
+		bool operator==(const basic_string<_Elem>& str) const
+		{
+			bool ret = false;
+			if (size() == str.size())
+			{
+				if (size() == 0 &&
+					str.size() == 0)
+				{
+					ret = true;
+				}
+				else
+				{
+					if (lstrcmpi(c_str(), str.c_str()) == 0)
+						ret = true;
+				}
+			}
+
+			return ret;
+		}
+
 		_Elem& operator [](int index){
 			if (index < 0 || index >= m_maxSize || !_Ptr){
 				static _Elem nullchar(NULL);
