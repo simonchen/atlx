@@ -76,7 +76,7 @@ namespace ATLX{
 
 		virtual void OnDestroy();
 
-		virtual void OnPaint(HDC hdc);
+		virtual void OnPaint();
 
 		virtual BOOL OnEraseBkgnd(HDC hdc);
 

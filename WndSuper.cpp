@@ -22,10 +22,7 @@ LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam,
 	}
 	if (uMsg == WM_PAINT)
 	{
-		PAINTSTRUCT ps;
-		BeginPaint(m_hWnd, &ps);
-		OnPaint(ps.hdc);
-		EndPaint(m_hWnd, &ps);
+		OnPaint();
 	}
 	if (uMsg == WM_ERASEBKGND)
 	{
@@ -162,7 +159,7 @@ void ATLX::CWndSuper::OnDestroy()
 	UnSubclassWindow();
 }
 
-void ATLX::CWndSuper::OnPaint(HDC hdc)
+void ATLX::CWndSuper::OnPaint()
 {
 	// Do nothing.
 }
