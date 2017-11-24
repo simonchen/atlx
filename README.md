@@ -35,6 +35,9 @@ This intends to be used in processing of SINGLE BYTE(CHAR)
 - Multi-Byte(UTF-8) / Unicode charset
 - C Run-time secure
 
+## Targeting Platform
+Windows XP or later version.
+
 ## Code rules
 - No exception handler (such as Memory allocation failures)
 - No [SAL](https://msdn.microsoft.com/en-us/library/hh916383.aspx) (Source code annotation)
