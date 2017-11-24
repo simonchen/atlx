@@ -8,13 +8,15 @@ namespace ATLX{
 	{
 		// Constructors
 	public:
-		CToolTipCtrl();
+		CToolTipCtrl(HINSTANCE hInst=NULL);
 
 		// Generic creator
 		virtual BOOL Create(CWndSuper* pParentWnd, DWORD dwStyle = 0);
 
 		// Generic creator allowing extended style bits
 		virtual BOOL CreateEx(CWndSuper* pParentWnd, DWORD dwStyle = 0, DWORD dwStyleEx = 0);
+
+		virtual LRESULT ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled);
 
 		// Attributes
 		// Retrieves the text for a tool in the ToolTip control .
@@ -83,7 +85,7 @@ namespace ATLX{
 
 		// Tests a point to determine whether it is within the bounding rectangle of
 		// the specified tool and, if it is, retrieves information about the tool.
-		BOOL HitTest(CWndSuper* pWnd, POINT pt, LPTOOLINFO lpToolInfo) const;
+		BOOL HitTest(CWndSuper* pWnd, const POINT& pt, LPTOOLINFO lpToolInfo) const;
 
 		// Passes a mouse message to the ToolTip control for processing.
 		void RelayEvent(LPMSG lpMsg);
@@ -126,15 +128,18 @@ namespace ATLX{
 		BOOL DestroyToolTipCtrl();
 #endif
 
+		// Last hitted window
+		CWndSuper* m_pLastHit;
+
 	protected:
 		LRESULT OnDisableModal(WPARAM, LPARAM);
 		LRESULT OnWindowFromPoint(WPARAM, LPARAM);
 		LRESULT OnAddTool(WPARAM, LPARAM);
 		void OnEnable(BOOL bEnable);
 
-		//CMapStringToPtr m_mapString;
+		CMapStringToPtr m_mapString;
 
-		friend class CWnd;
+		friend class CWndSuper;
 		//friend class CToolBar; // later on we will enable it [CHEN]
 	};
 

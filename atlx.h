@@ -44,8 +44,15 @@ using namespace Gdiplus;
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "gdiplus.lib")
 
+////////////////////////////////////////////////////////////////////////////////
+// ATLX headers
+
+// atlx macro
+#include "atlx_macro.h"
+
 // atlx headers for Utils
 #include "atlx_string.h"
+#include "atlx_colls.h"
 
 // atlx headers for Window controls
 #include "WndThunker.h"

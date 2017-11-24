@@ -5,15 +5,18 @@
 
 namespace ATLX{
 
+	class CToolTipCtrl;
+
 	// Uses CWndSuper to create window or subclassing window
 	class CWndSuper : public ATLX::CWndThunker
 	{
 	public:
-		CWndSuper(void);
+		CWndSuper(HINSTANCE hInst=NULL);
 	public:
 		virtual ~CWndSuper(void);
 
 		virtual LRESULT ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled);
+		LRESULT SendMessage(UINT uMsg, WPARAM wParam = 0, LPARAM lParam = 0);
 
 		// Create window, when you don't need the window, you should call Destory()
 		// If you're creating system class (such as Static, Button, ListCtrl, Listbox, etc.), you won't receive WM_CREATE message,
@@ -83,6 +86,17 @@ namespace ATLX{
 		virtual BOOL OnEraseBkgnd(HDC hdc);
 
 		virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
+
+	protected: // Tooltip filters
+		BOOL EnableToolTips(CToolTipCtrl* pToolTip, BOOL bEnable, BOOL bTracking=FALSE);
+		static void _stdcall _FilterToolTipMessage(MSG* pMsg, CWndSuper* pWnd);
+		void FilterToolTipMessage(MSG* pMsg);
+
+		CToolTipCtrl* m_pToolTip;
+		BOOL	m_bEnableToolTip;
+
+	protected:
+		HINSTANCE m_hInst; // The instance associated 
 	};
 
 }

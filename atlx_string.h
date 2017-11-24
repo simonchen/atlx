@@ -5,6 +5,11 @@
 ***********************************************************************/
 
 #pragma once
+
+#ifndef MAX_ATLX_STRING_BUFF
+#define MAX_ATLX_STRING_BUFF	1024
+#endif
+
 namespace ATLX{
 
 	// Basic string template class, usage is more likely close to STL std::basic_string
@@ -36,6 +41,13 @@ namespace ATLX{
 			_copy(str);
 		}
 
+
+		// Uses the existed one in place, it doesn't allocate memory on heap.
+		void* operator new(size_t size, const basic_string<_Elem>* pstr)
+		{
+			return (void*)pstr;
+		}
+
 		basic_string<_Elem>& operator=(const _Elem* ptr)
 		{
 			_assign(ptr);
@@ -49,19 +61,41 @@ namespace ATLX{
 		}
 
 		// Comparing string only applying TEXT with ternimating null.
-		bool operator==(const basic_string<_Elem>& str) const
+		bool operator==(const basic_string<_Elem>& strText) const
 		{
 			bool ret = false;
-			if (size() == str.size())
+			if (size() == strText.size())
 			{
 				if (size() == 0 &&
-					str.size() == 0)
+					strText.size() == 0)
 				{
 					ret = true;
 				}
 				else
 				{
-					if (lstrcmpi(c_str(), str.c_str()) == 0)
+					if (lstrcmpi(c_str(), strText.c_str()) == 0)
+						ret = true;
+				}
+			}
+
+			return ret;
+		}
+
+		// Comparing string only applying TEXT with ternimating null.
+		bool operator==(const _Elem* pszText) const
+		{
+			bool ret = false;
+			int lens = lstrlen(pszText);
+			if (size() == lens)
+			{
+				if (size() == 0 &&
+					lens == 0)
+				{
+					ret = true;
+				}
+				else
+				{
+					if (lstrcmpi(c_str(), pszText) == 0)
 						ret = true;
 				}
 			}
@@ -123,6 +157,11 @@ namespace ATLX{
 		{
 			reserve(size);
 			return _Ptr;
+		}
+
+		_Elem* GetBuffer(size_t size)
+		{
+			return get_buffer(size);
 		}
 
 		// Adjusts the max size of elements that the string can place
@@ -217,6 +256,12 @@ namespace ATLX{
 			}
 
 			va_end(args);
+		}
+
+		BOOL LoadString(UINT nIDText, HINSTANCE hInst = NULL)
+		{
+			_Elem* pszText = GetBuffer(MAX_ATLX_STRING_BUFF);
+			return (0 != ::LoadString(hInst, nIDText, pszText, MAX_ATLX_STRING_BUFF));
 		}
 
 	protected:

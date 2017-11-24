@@ -38,6 +38,5 @@ namespace ATLX {
 		UINT m_IDD;
 		BOOL m_bModeless;
 		HWND m_hParent;
-		HINSTANCE m_hInst;
 	};
 }

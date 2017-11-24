@@ -1,7 +1,7 @@
 #include "atlx.h"
 #include "WndSuper.h"
 
-ATLX::CWndSuper::CWndSuper(void) : m_pParent(NULL)
+ATLX::CWndSuper::CWndSuper(HINSTANCE hInst/*=NULL*/) : m_pParent(NULL), m_hInst(hInst), m_pToolTip(NULL), m_bEnableToolTip(FALSE)
 {
 }
 
@@ -36,6 +36,11 @@ LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam,
 	return ret;
 }
 
+LRESULT ATLX::CWndSuper::SendMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return ::SendMessage(m_hWnd, uMsg, wParam, lParam);
+}
+
 BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const int x, const int y, const int nWidth, const int nHeight, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
 {
 	HWND hWndParent = NULL;
@@ -49,7 +54,7 @@ BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWOR
 		nWidth,
 		nHeight,
 		hWndParent,
-		(HMENU)nID, NULL, NULL);
+		(HMENU)nID, m_hInst, NULL);
 
 	if (::IsWindow(m_hWnd))
 		m_pParent = pParentWnd;
@@ -87,7 +92,7 @@ BOOL ATLX::CWndSuper::CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DW
 		nWidth,
 		nHeight,
 		hWndParent,
-		(HMENU)nID, NULL, NULL);
+		(HMENU)nID, m_hInst, NULL);
 
 	if (::IsWindow(m_hWnd))
 		m_pParent = pParentWnd;
