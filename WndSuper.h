@@ -26,7 +26,44 @@ namespace ATLX{
 		BOOL CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int nWidth, int nHeight, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 		BOOL CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
 
-		CWndSuper* m_pParent;
+		// immediate parent window, 
+		// Note, if you don't pass parent window pointer on create, it won't be able to find the window's parent by GetParent(),
+		// in case, you have to use win32 API to search the real handle of parent window.
+		CWndSuper* m_pParent; 
+		// immediate parent window
+		CWndSuper* GetParent() { return m_pParent; }
+		// immediate parent window or owner window without WS_CHILD style
+		CWndSuper* GetParentOwner()
+		{
+			CWndSuper* pWnd = m_pParent;
+			while (pWnd)
+			{
+				if (!(pWnd->GetStyle() & WS_CHILD))
+					return pWnd;
+
+				pWnd = pWnd->GetParent();
+			}
+
+			return pWnd;
+		}
+		// Get top level owner
+		CWndSuper* GetTopLevelParent()
+		{
+			CWndSuper* pWnd = GetParentOwner();
+			CWndSuper* pWndT = NULL;
+			while ((pWndT = pWnd->GetParentOwner()) != NULL)
+				pWnd = pWndT;
+
+			return pWnd;
+		}
+
+		// See if top level parent is the last active
+		BOOL IsTopParentActive(){
+			CWndSuper* pWnd = GetTopLevelParent();
+			if (!pWnd) return FALSE;
+
+			return (::GetForegroundWindow() == ::GetLastActivePopup(pWnd->m_hWnd));
+		}
 
 		BOOL SubclassWindow(HWND hWnd);
 		virtual void PreSubclassWindow();
@@ -87,13 +124,32 @@ namespace ATLX{
 
 		virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
 
-	protected: // Tooltip filters
+	// Utils
+	public: 
+		static BOOL PtInRect(const POINT& pt, const RECT& rect);
+
+		static HWND ChildWindowFromPoint(HWND hWnd, POINT& pt);
+
+		static HWND TopChildWindowFromPoint(HWND hWnd, POINT& pt);
+
+	// Tool tip relates
+	public:
+		INT_PTR OnToolHitTest(POINT& point, TOOLINFO* pTI) const;
+
 		BOOL EnableToolTips(CToolTipCtrl* pToolTip, BOOL bEnable, BOOL bTracking=FALSE);
+
+	protected: // Tooltip filters
 		static void _stdcall _FilterToolTipMessage(MSG* pMsg, CWndSuper* pWnd);
 		void FilterToolTipMessage(MSG* pMsg);
 
 		CToolTipCtrl* m_pToolTip;
 		BOOL	m_bEnableToolTip;
+		UINT	m_nLastHit; // Last hitted control ID with tool tip
+		CWndSuper* m_pLastHit; // Last hitted windows for tool tip
+		BOOL	m_bTracking; // It hints that Tool tip that have flag TTF_TRACK
+		TOOLINFO* m_pLastInfo;
+
+		void DestroyToolTip();
 
 	protected:
 		HINSTANCE m_hInst; // The instance associated 

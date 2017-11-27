@@ -114,7 +114,7 @@ void ATLX::CToolTipCtrl::OnEnable(BOOL bEnable)
 
 LRESULT ATLX::CToolTipCtrl::OnWindowFromPoint(WPARAM, LPARAM lParam)
 {
-	ASSERT(lParam != NULL);
+	ATLX_ASSERT(lParam != NULL);
 
 	// the default implementation of tooltips just calls WindowFromPoint
 	// which does not work for certain kinds of combo boxes
@@ -130,7 +130,7 @@ LRESULT ATLX::CToolTipCtrl::OnWindowFromPoint(WPARAM, LPARAM lParam)
 
 	// handle special case of disabled child windows
 	::ScreenToClient(hWnd, &pt);
-	hWndTemp = ::ChildWindowFromPoint(hWnd, pt);
+	hWndTemp = CWndSuper::ChildWindowFromPoint(hWnd, pt);
 	if (hWndTemp != NULL && !::IsWindowEnabled(hWndTemp))
 		return (LRESULT)hWndTemp;
 
@@ -177,15 +177,15 @@ BOOL ATLX::CToolTipCtrl::AddTool(CWndSuper* pWnd, UINT nIDText, LPCRECT lpRectTo
 
 	ti.hinst = ::FindResource(m_hInst, MAKEINTRESOURCE(nIDText), //MAKEINTRESOURCE((nIDText >> 4) + 1),
 		RT_STRING) ? m_hInst : NULL;
-	ASSERT(ti.hinst != NULL);
+	ATLX_ASSERT(ti.hinst != NULL);
 	ti.lpszText = (LPTSTR)MAKEINTRESOURCE(nIDText);
 	return (BOOL) ::SendMessage(m_hWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
 }
 
 void ATLX::CToolTipCtrl::DelTool(CWndSuper* pWnd, UINT_PTR nIDTool)
 {
-	ASSERT(::IsWindow(m_hWnd));
-	ASSERT(pWnd != NULL);
+	ATLX_ASSERT(::IsWindow(m_hWnd));
+	ATLX_ASSERT(pWnd != NULL);
 
 	TOOLINFO ti;
 	FillInToolInfo(ti, pWnd, nIDTool);
@@ -194,8 +194,8 @@ void ATLX::CToolTipCtrl::DelTool(CWndSuper* pWnd, UINT_PTR nIDTool)
 
 void ATLX::CToolTipCtrl::GetText(CString& str, CWndSuper* pWnd, UINT_PTR nIDTool) const
 {
-	ASSERT(::IsWindow(m_hWnd));
-	ASSERT(pWnd != NULL);
+	ATLX_ASSERT(::IsWindow(m_hWnd));
+	ATLX_ASSERT(pWnd != NULL);
 
 	TOOLINFO ti;
 	FillInToolInfo(ti, pWnd, nIDTool);
@@ -212,8 +212,8 @@ void ATLX::CToolTipCtrl::GetText(CString& str, CWndSuper* pWnd, UINT_PTR nIDTool
 BOOL ATLX::CToolTipCtrl::GetToolInfo(TOOLINFO& ToolInfo, CWndSuper* pWnd,
 	UINT_PTR nIDTool) const
 {
-	ASSERT(::IsWindow(m_hWnd));
-	ASSERT(pWnd != NULL);
+	ATLX_ASSERT(::IsWindow(m_hWnd));
+	ATLX_ASSERT(pWnd != NULL);
 
 	FillInToolInfo(ToolInfo, pWnd, nIDTool);
 	return (BOOL)::SendMessage(m_hWnd, TTM_GETTOOLINFO, 0, (LPARAM)&ToolInfo);
@@ -221,9 +221,9 @@ BOOL ATLX::CToolTipCtrl::GetToolInfo(TOOLINFO& ToolInfo, CWndSuper* pWnd,
 
 BOOL ATLX::CToolTipCtrl::HitTest(CWndSuper* pWnd, const POINT& pt, LPTOOLINFO lpToolInfo) const
 {
-	ASSERT(::IsWindow(m_hWnd));
-	ASSERT(pWnd != NULL);
-	ASSERT(lpToolInfo != NULL);
+	ATLX_ASSERT(::IsWindow(m_hWnd));
+	ATLX_ASSERT(pWnd != NULL);
+	ATLX_ASSERT(lpToolInfo != NULL);
 
 	TTHITTESTINFO hti;
 	memset(&hti, 0, sizeof(hti));
@@ -243,9 +243,9 @@ BOOL ATLX::CToolTipCtrl::HitTest(CWndSuper* pWnd, const POINT& pt, LPTOOLINFO lp
 
 void ATLX::CToolTipCtrl::SetToolRect(CWndSuper* pWnd, UINT_PTR nIDTool, LPCRECT lpRect)
 {
-	ASSERT(::IsWindow(m_hWnd));
-	ASSERT(pWnd != NULL);
-	ASSERT(nIDTool != 0);
+	ATLX_ASSERT(::IsWindow(m_hWnd));
+	ATLX_ASSERT(pWnd != NULL);
+	ATLX_ASSERT(nIDTool != 0);
 
 	TOOLINFO ti;
 	FillInToolInfo(ti, pWnd, nIDTool);
@@ -271,7 +271,7 @@ void ATLX::CToolTipCtrl::UpdateTipText(LPCTSTR lpszText, CWndSuper* pWnd, UINT_P
 
 void ATLX::CToolTipCtrl::UpdateTipText(UINT nIDText, CWndSuper* pWnd, UINT_PTR nIDTool)
 {
-	ASSERT(nIDText != 0);
+	ATLX_ASSERT(nIDText != 0);
 
 	CString str;
 	str.LoadString(nIDText);
@@ -302,6 +302,53 @@ void ATLX::CToolTipCtrl::FillInToolInfo(TOOLINFO& ti, CWndSuper* pWnd, UINT_PTR 
 
 /////////////////////////////////////////////////////////////////////////////
 // CWndSuper tooltip support
+// extra defined TTF_ flags for TOOLINFO::uFlags
+#define TTF_NOTBUTTON       0x80000000L // no status help on buttondown
+#define TTF_ALWAYSTIP       0x40000000L // always show the tip even if not active
+
+void ATLX::CWndSuper::DestroyToolTip()
+{
+	if (m_pToolTip)
+	{
+		delete m_pToolTip;
+		m_pToolTip = NULL;
+	}
+
+	if (m_pLastInfo)
+	{
+		delete m_pLastInfo;
+		m_pLastInfo = NULL;
+	}
+}
+
+INT_PTR ATLX::CWndSuper::OnToolHitTest(POINT& point, TOOLINFO* pTI) const
+{
+	// find child window which hits the point
+	// (don't use WindowFromPoint, because it ignores disabled windows)
+	HWND hWndChild = CWndSuper::TopChildWindowFromPoint(m_hWnd, point);
+	if (hWndChild != NULL)
+	{
+		// return positive hit if control ID isn't -1
+		INT_PTR nHit = ::GetDlgCtrlID(hWndChild);
+
+		// hits against child windows always center the tip
+		if (pTI != NULL && pTI->cbSize >= sizeof(TOOLINFO))
+		{
+			// setup the TOOLINFO structure
+			pTI->hwnd = m_hWnd;
+			pTI->uId = (UINT_PTR)hWndChild;
+			pTI->uFlags |= TTF_IDISHWND;
+			pTI->lpszText = LPSTR_TEXTCALLBACK;
+
+			// set TTF_NOTBUTTON and TTF_CENTERTIP if it isn't a button
+			if (!(::SendMessage(hWndChild, WM_GETDLGCODE, 0, 0) & DLGC_BUTTON))
+				pTI->uFlags |= TTF_NOTBUTTON | TTF_CENTERTIP;
+		}
+		return nHit;
+	}
+	return -1;  // not found
+}
+
 BOOL ATLX::CWndSuper::EnableToolTips(CToolTipCtrl* pToolTip, BOOL bEnable, BOOL bTracking)
 {
 	ATLX_ASSERT(pToolTip);
@@ -324,6 +371,7 @@ BOOL ATLX::CWndSuper::EnableToolTips(CToolTipCtrl* pToolTip, BOOL bEnable, BOOL 
 		}
 
 		m_bEnableToolTip = FALSE;
+		m_bTracking = bTracking;
 
 		// success
 		return TRUE;
@@ -336,6 +384,7 @@ BOOL ATLX::CWndSuper::EnableToolTips(CToolTipCtrl* pToolTip, BOOL bEnable, BOOL 
 		//AFX_MODULE_STATE* pModuleState = _AFX_CMDTARGET_GETSTATE();
 		//pModuleState->m_pfnFilterToolTipMessage = &CWnd::_FilterToolTipMessage;
 		m_bEnableToolTip = TRUE;
+		m_bTracking = bTracking;
 	}
 	return TRUE;
 }
@@ -346,7 +395,7 @@ void RelayToolTipMessage(ATLX::CToolTipCtrl* pToolTip, MSG* pMsg)
 	MSG msg = *pMsg;
 	msg.hwnd = (HWND)pToolTip->SendMessage(TTM_WINDOWFROMPOINT, 0, (LPARAM)&msg.pt);
 	POINT& pt = pMsg->pt;
-	if (msg.message >= WM_MOUSEFIRST && msg.message <= AFX_WM_MOUSELAST)
+	if (msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST)
 		::ScreenToClient(msg.hwnd, &pt);
 	msg.lParam = MAKELONG(pt.x, pt.y);
 
@@ -384,33 +433,21 @@ void ATLX::CWndSuper::FilterToolTipMessage(MSG* pMsg)
 			return;
 		}
 
-		CToolTipCtrl* pToolTip = m_pToolTip;
-		if (!pToolTip) return;
+		// Created tool tip on the top level window
+		CWndSuper* pTopWnd = GetTopLevelParent();
+		if (!pTopWnd) pTopWnd = this; // if top level window doesn't exist, then tool tip will be created on this child window
 
-		// TODO...
-
-		/*
-		CWndSuper* pOwner = GetParentOwner();
-		if (pToolTip != NULL && pToolTip->GetOwner() != pOwner)
+		if (pTopWnd->m_pToolTip == NULL)
 		{
-			pToolTip->DestroyWindow();
-			delete pToolTip;
-			pModuleThreadState->m_pToolTip = NULL;
-			pToolTip = NULL;
-		}
-
-		if (pToolTip == NULL)
-		{
-			pToolTip = new CToolTipCtrl;
-			if (!pToolTip->Create(pOwner, TTS_ALWAYSTIP))
+			pTopWnd->m_pToolTip = new CToolTipCtrl;
+			if (!pTopWnd->m_pToolTip->Create(pTopWnd, TTS_ALWAYSTIP))
 			{
-				delete pToolTip;
+				delete pTopWnd->m_pToolTip;
+				pTopWnd->m_pToolTip = NULL;
 				return;
 			}
-			pToolTip->SendMessage(TTM_ACTIVATE, FALSE);
-			pModuleThreadState->m_pToolTip = pToolTip;
+			pTopWnd->m_pToolTip->SendMessage(TTM_ACTIVATE, FALSE);
 		}
-		*/
 
 		TOOLINFO ti; memset(&ti, 0, sizeof(TOOLINFO));
 
@@ -423,82 +460,76 @@ void ATLX::CWndSuper::FilterToolTipMessage(MSG* pMsg)
 
 		// build new toolinfo and if different than current, register it
 		CWndSuper* pHitWnd = nHit == -1 ? NULL : this;
-		if (pModuleThreadState->m_nLastHit != nHit || pModuleThreadState->m_pLastHit != pHitWnd)
+		if (pTopWnd->m_nLastHit != nHit || pTopWnd->m_pLastHit != pHitWnd)
 		{
 			if (nHit != -1)
 			{
 				// add new tool and activate the tip
 				ti = tiHit;
 				ti.uFlags &= ~(TTF_NOTBUTTON | TTF_ALWAYSTIP);
-				if (m_nFlags & WF_TRACKINGTOOLTIPS)
+				if (m_bTracking)
 					ti.uFlags |= TTF_TRACK;
-				VERIFY(pToolTip->SendMessage(TTM_ADDTOOL, 0, (LPARAM)&ti));
+				pTopWnd->m_pToolTip->SendMessage(TTM_ADDTOOL, 0, (LPARAM)&ti);
 				if ((tiHit.uFlags & TTF_ALWAYSTIP) || IsTopParentActive())
 				{
 					// allow the tooltip to popup when it should
-					pToolTip->SendMessage(TTM_ACTIVATE, TRUE);
-					if (m_nFlags & WF_TRACKINGTOOLTIPS)
-						pToolTip->SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
+					pTopWnd->m_pToolTip->SendMessage(TTM_ACTIVATE, TRUE);
+					if (m_bTracking)
+						pTopWnd->m_pToolTip->SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
 
 					// bring the tooltip window above other popup windows
-					::SetWindowPos(pToolTip->m_hWnd, HWND_TOP, 0, 0, 0, 0,
+					::SetWindowPos(pTopWnd->m_pToolTip->m_hWnd, HWND_TOP, 0, 0, 0, 0,
 						SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_NOOWNERZORDER);
 				}
 			}
 			else
 			{
-				pToolTip->SendMessage(TTM_ACTIVATE, FALSE);
+				pTopWnd->m_pToolTip->SendMessage(TTM_ACTIVATE, FALSE);
 			}
 
 			// relay mouse event before deleting old tool
-			RelayToolTipMessage(pToolTip, pMsg);
+			RelayToolTipMessage(pTopWnd->m_pToolTip, pMsg);
 
 			// now safe to delete the old tool
-			if (pModuleThreadState->m_pLastInfo != NULL &&
-				pModuleThreadState->m_pLastInfo->cbSize >= sizeof(AFX_OLDTOOLINFO))
-				pToolTip->SendMessage(TTM_DELTOOL, 0, (LPARAM)pModuleThreadState->m_pLastInfo);
+			if (pTopWnd->m_pLastInfo != NULL &&
+				pTopWnd->m_pLastInfo->cbSize >= sizeof(TOOLINFO))
+				pTopWnd->m_pToolTip->SendMessage(TTM_DELTOOL, 0, (LPARAM)pTopWnd->m_pLastInfo);
 
-			pModuleThreadState->m_pLastHit = pHitWnd;
-			pModuleThreadState->m_nLastHit = nHit;
-			if (pModuleThreadState->m_pLastInfo == NULL)
+			pTopWnd->m_pLastHit = pHitWnd;
+			pTopWnd->m_nLastHit = nHit;
+			if (pTopWnd->m_pLastInfo == NULL)
 			{
-				pModuleThreadState->m_pLastInfo = new TOOLINFO;
-				memset(pModuleThreadState->m_pLastInfo, 0, sizeof(TOOLINFO));
+				pTopWnd->m_pLastInfo = new TOOLINFO;
+				memset(pTopWnd->m_pLastInfo, 0, sizeof(TOOLINFO));
 			}
-			*pModuleThreadState->m_pLastInfo = tiHit;
+			*pTopWnd->m_pLastInfo = tiHit;
 		}
 		else
 		{
-			if (m_nFlags & WF_TRACKINGTOOLTIPS)
+			if (m_bTracking)
 			{
 				POINT pt;
 
 				::GetCursorPos(&pt);
-				pToolTip->SendMessage(TTM_TRACKPOSITION, 0, MAKELPARAM(pt.x, pt.y));
+				pTopWnd->m_pToolTip->SendMessage(TTM_TRACKPOSITION, 0, MAKELPARAM(pt.x, pt.y));
 			}
 			else
 			{
 				// relay mouse events through the tooltip
 				if (nHit != -1)
-					RelayToolTipMessage(pToolTip, pMsg);
+					RelayToolTipMessage(pTopWnd->m_pToolTip, pMsg);
 			}
 		}
 
 		if ((tiHit.lpszText != LPSTR_TEXTCALLBACK) && (tiHit.hinst == 0))
 			free(tiHit.lpszText);
 	}
-	else if (m_nFlags & (WF_TOOLTIPS | WF_TRACKINGTOOLTIPS))
+	else if (m_bEnableToolTip)
 	{
 		// make sure that tooltips are not already being handled
-		CWndSuper* pWnd = CWnd::FromHandle(pMsg->hwnd);
-		while (pWnd != NULL && pWnd != this && !(pWnd->m_nFlags & (WF_TOOLTIPS | WF_TRACKINGTOOLTIPS)))
-			pWnd = pWnd->GetParent();
-		if (pWnd != this)
-			return;
-
 		BOOL bKeys = (message >= WM_KEYFIRST && message <= WM_KEYLAST) ||
-			(message >= WM_SYSKEYFIRST && message <= WM_SYSKEYLAST);
-		if ((m_nFlags & WF_TRACKINGTOOLTIPS) == 0 &&
+			(message >= WM_SYSKEYDOWN && message <= WM_SYSDEADCHAR);
+		if (!m_bTracking &&
 			(bKeys ||
 			(message == WM_LBUTTONDOWN || message == WM_LBUTTONDBLCLK) ||
 			(message == WM_RBUTTONDOWN || message == WM_RBUTTONDBLCLK) ||
@@ -507,7 +538,11 @@ void ATLX::CWndSuper::FilterToolTipMessage(MSG* pMsg)
 			(message == WM_NCRBUTTONDOWN || message == WM_NCRBUTTONDBLCLK) ||
 			(message == WM_NCMBUTTONDOWN || message == WM_NCMBUTTONDBLCLK)))
 		{
-			CWnd::CancelToolTips(bKeys);
+			//CancelToolTips(bKeys);
+			CWndSuper* pTopWnd = GetTopLevelParent();
+			if (!pTopWnd) pTopWnd = this;
+			if (pTopWnd && pTopWnd->m_pToolTip)
+				pTopWnd->m_pToolTip->SendMessage(TTM_ACTIVATE, FALSE);
 		}
 	}
 }

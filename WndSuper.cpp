@@ -1,12 +1,81 @@
 #include "atlx.h"
 #include "WndSuper.h"
 
-ATLX::CWndSuper::CWndSuper(HINSTANCE hInst/*=NULL*/) : m_pParent(NULL), m_hInst(hInst), m_pToolTip(NULL), m_bEnableToolTip(FALSE)
+BOOL ATLX::CWndSuper::PtInRect(const POINT& pt, const RECT& rect)
+{
+	if (pt.x >= rect.left &&
+		pt.x <= rect.right &&
+		pt.y >= rect.top &&
+		pt.y <= rect.bottom)
+		return TRUE;
+
+	return FALSE;
+}
+
+HWND ATLX::CWndSuper::ChildWindowFromPoint(HWND hWnd, POINT& pt)
+{
+	ATLX_ASSERT(hWnd != NULL);
+
+	// check child windows
+	::ClientToScreen(hWnd, &pt);
+	HWND hWndChild = ::GetWindow(hWnd, GW_CHILD);
+	for (; hWndChild != NULL; hWndChild = ::GetWindow(hWndChild, GW_HWNDNEXT))
+	{
+		if (::GetDlgCtrlID(hWndChild) != (WORD)-1 &&
+			(::GetWindowLong(hWndChild, GWL_STYLE) & WS_VISIBLE))
+		{
+			// see if point hits the child window
+			RECT rect;
+			::GetWindowRect(hWndChild, &rect);
+			if (CWndSuper::PtInRect(pt, rect))
+				return hWndChild;
+		}
+	}
+
+	return NULL;    // not found
+}
+
+HWND ATLX::CWndSuper::TopChildWindowFromPoint(HWND hWnd, POINT& pt)
+{
+	ATLX_ASSERT(hWnd != NULL);
+
+	// ask Windows for the child window at the point
+	HWND hWndRet = ::RealChildWindowFromPoint(hWnd, pt);
+	if (hWndRet != NULL)
+	{
+		return ((hWndRet == hWnd) ? NULL : hWndRet);
+	}
+
+	// fallback: check child windows, return the topmost child that contains the point
+	::ClientToScreen(hWnd, &pt);
+	HWND hWndChild = ::GetWindow(hWnd, GW_CHILD);
+	for (; hWndChild != NULL; hWndChild = ::GetWindow(hWndChild, GW_HWNDNEXT))
+	{
+		if (::GetDlgCtrlID(hWndChild) != (WORD)-1 && (::GetWindowLong(hWndChild, GWL_STYLE) & WS_VISIBLE))
+		{
+			// see if point hits the child window
+			RECT rect;
+			::GetWindowRect(hWndChild, &rect);
+			if (CWndSuper::PtInRect(pt, rect))
+			{
+				hWndRet = hWndChild;
+			}
+		}
+	}
+
+	return hWndRet;    // not found
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CWndSuper
+ATLX::CWndSuper::CWndSuper(HINSTANCE hInst/*=NULL*/) : 
+m_pParent(NULL), m_hInst(hInst), m_pToolTip(NULL), m_bEnableToolTip(FALSE), m_nLastHit(-1), m_pLastHit(NULL), m_bTracking(FALSE), m_pLastInfo(NULL)
 {
 }
 
 ATLX::CWndSuper::~CWndSuper(void)
 {
+	DestroyToolTip();
 }
 
 LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled)

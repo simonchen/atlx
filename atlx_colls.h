@@ -26,35 +26,6 @@ namespace ATLX{
 	};
 #pragma pack(pop)
 
-	/////////////////////////////////////////////////////////////////////////////
-	// CPlex
-
-	CPlex* __stdcall CPlex::Create(CPlex*& pHead, UINT_PTR nMax, UINT_PTR cbElement)
-	{
-		ATLX_ASSERT(nMax > 0 && cbElement > 0);
-		if (nMax == 0 || cbElement == 0)
-		{
-			throw "Invalid arguments!";
-		}
-
-		CPlex* p = (CPlex*) new BYTE[sizeof(CPlex) + nMax * cbElement];
-		// may throw exception
-		p->pNext = pHead;
-		pHead = p;  // change head (adds in reverse order for simplicity)
-		return p;
-	}
-
-	void CPlex::FreeDataChain()     // free this one and links
-	{
-		CPlex* p = this;
-		while (p != NULL)
-		{
-			BYTE* bytes = (BYTE*)p;
-			CPlex* pNext = p->pNext;
-			delete[] bytes;
-			p = pNext;
-		}
-	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	// CMapStringToPtr
@@ -131,4 +102,9 @@ namespace ATLX{
 		typedef void* BASE_VALUE;
 		typedef void* BASE_ARG_VALUE;
 	};
+
+	inline void CMapStringToPtr::SetAt(LPCTSTR key, void* newValue)
+	{
+		(*this)[key] = newValue;
+	}
 }
