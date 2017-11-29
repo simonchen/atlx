@@ -21,10 +21,10 @@ namespace ATLX{
 		// Create window, when you don't need the window, you should call Destory()
 		// If you're creating system class (such as Static, Button, ListCtrl, Listbox, etc.), you won't receive WM_CREATE message,
 		// therefore, OnCreate event won't work in this case.
-		BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
-		BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
-		BOOL CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int nWidth, int nHeight, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
-		BOOL CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0xFFFF);
+		BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, CWndSuper* pParentWnd = NULL, UINT nID = 0);
+		BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0);
+		BOOL CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int nWidth, int nHeight, CWndSuper* pParentWnd = NULL, UINT nID = 0);
+		BOOL CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, const RECT& rect, CWndSuper* pParentWnd = NULL, UINT nID = 0);
 
 		// immediate parent window, 
 		// Note, if you don't pass parent window pointer on create, it won't be able to find the window's parent by GetParent(),
@@ -51,7 +51,7 @@ namespace ATLX{
 		{
 			CWndSuper* pWnd = GetParentOwner();
 			CWndSuper* pWndT = NULL;
-			while ((pWndT = pWnd->GetParentOwner()) != NULL)
+			while ( pWnd && (pWndT = pWnd->GetParentOwner()) != NULL)
 				pWnd = pWndT;
 
 			return pWnd;
@@ -136,7 +136,7 @@ namespace ATLX{
 	public:
 		INT_PTR OnToolHitTest(POINT& point, TOOLINFO* pTI) const;
 
-		BOOL EnableToolTips(CToolTipCtrl* pToolTip, BOOL bEnable, BOOL bTracking=FALSE);
+		BOOL EnableToolTips(BOOL bEnable, BOOL bTracking=FALSE);
 
 	protected: // Tooltip filters
 		static void _stdcall _FilterToolTipMessage(MSG* pMsg, CWndSuper* pWnd);

@@ -28,7 +28,7 @@ BOOL ATLX::CToolTipCtrl::Create(CWndSuper* pParentWnd, DWORD dwStyle /* = 0 */)
 	init.dwSize = sizeof(init);
 	::InitCommonControlsEx(&init);
 
-	BOOL bResult = CWndSuper::CreateEx(NULL, TOOLTIPS_CLASS,
+	BOOL bResult = CWndSuper::CreateEx(TOOLTIPS_CLASS, NULL,
 		WS_POPUP | dwStyle, // force WS_POPUP
 		NULL,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -68,13 +68,22 @@ LRESULT ATLX::CToolTipCtrl::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 		OnAddTool(wParam, lParam);
 	}
+	if (uMsg == TTM_WINDOWFROMPOINT)
+	{
+		LRESULT ret = OnWindowFromPoint(wParam, lParam);
+		if (ret)
+		{
+			bMsgHandled = TRUE;
+			return ret;
+		}
+	}
 	if (uMsg == WM_ENABLE)
 	{
 		OnEnable((BOOL)wParam);
 	}
 	if (uMsg == TTM_ACTIVATE)
 	{
-		OnEnable((BOOL)wParam);
+		//OnEnable((BOOL)wParam);
 	}
 
 	return 0;
@@ -349,25 +358,28 @@ INT_PTR ATLX::CWndSuper::OnToolHitTest(POINT& point, TOOLINFO* pTI) const
 	return -1;  // not found
 }
 
-BOOL ATLX::CWndSuper::EnableToolTips(CToolTipCtrl* pToolTip, BOOL bEnable, BOOL bTracking)
+BOOL ATLX::CWndSuper::EnableToolTips(BOOL bEnable, BOOL bTracking)
 {
-	ATLX_ASSERT(pToolTip);
-
 	if (!bEnable)
 	{
-		// cancel tooltip if this window is active
-		if (pToolTip->m_pLastHit == this)
-			pToolTip->SendMessage(TTM_ACTIVATE, FALSE);
-
-		// remove "dead-area" toolbar
-		if (pToolTip->m_hWnd != NULL)
+		CWndSuper* pTopWnd = GetTopLevelParent();
+		if (!pTopWnd) pTopWnd = this;
+		if (pTopWnd && pTopWnd->m_pToolTip)
 		{
-			TOOLINFO ti; memset(&ti, 0, sizeof(TOOLINFO));
-			ti.cbSize = sizeof(TOOLINFO);
-			ti.uFlags = TTF_IDISHWND;
-			ti.hwnd = m_hWnd;
-			ti.uId = (UINT_PTR)m_hWnd;
-			pToolTip->SendMessage(TTM_DELTOOL, 0, (LPARAM)&ti);
+			// cancel tooltip if this window is active
+			if (pTopWnd->m_pToolTip->m_pLastHit == this)
+				pTopWnd->m_pToolTip->SendMessage(TTM_ACTIVATE, FALSE);
+
+			// remove "dead-area" toolbar
+			if (pTopWnd->m_pToolTip->m_hWnd != NULL)
+			{
+				TOOLINFO ti; memset(&ti, 0, sizeof(TOOLINFO));
+				ti.cbSize = sizeof(TOOLINFO);
+				ti.uFlags = TTF_IDISHWND;
+				ti.hwnd = m_hWnd;
+				ti.uId = (UINT_PTR)m_hWnd;
+				pTopWnd->m_pToolTip->SendMessage(TTM_DELTOOL, 0, (LPARAM)&ti);
+			}
 		}
 
 		m_bEnableToolTip = FALSE;

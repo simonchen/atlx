@@ -81,6 +81,14 @@ ATLX::CWndSuper::~CWndSuper(void)
 LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled)
 {
 	LRESULT ret = 0;
+
+	MSG msg;
+	msg.hwnd = m_hWnd;
+	msg.message = uMsg;
+	msg.wParam = wParam;
+	msg.lParam = lParam;
+	ATLX::CWndSuper::_FilterToolTipMessage(&msg, this);
+
 	if (uMsg == WM_CREATE)
 	{
 		OnCreate((LPCREATESTRUCT)lParam);
@@ -110,7 +118,7 @@ LRESULT ATLX::CWndSuper::SendMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return ::SendMessage(m_hWnd, uMsg, wParam, lParam);
 }
 
-BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const int x, const int y, const int nWidth, const int nHeight, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const int x, const int y, const int nWidth, const int nHeight, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0*/)
 {
 	HWND hWndParent = NULL;
 	if (pParentWnd)
@@ -133,7 +141,7 @@ BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWOR
 	return ::IsWindow(m_hWnd);
 }
 
-BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0*/)
 {
 	return Create(lpszClassName,
 		lpszWindowName,
@@ -146,7 +154,7 @@ BOOL ATLX::CWndSuper::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWOR
 		nID);
 }
 
-BOOL ATLX::CWndSuper::CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int nWidth, int nHeight, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+BOOL ATLX::CWndSuper::CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int nWidth, int nHeight, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0*/)
 {
 	HWND hWndParent = NULL;
 	if (pParentWnd)
@@ -171,7 +179,7 @@ BOOL ATLX::CWndSuper::CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DW
 	return ::IsWindow(m_hWnd);
 }
 
-BOOL ATLX::CWndSuper::CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0xFFFF*/)
+BOOL ATLX::CWndSuper::CreateEx(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, DWORD dwExStyle, const RECT& rect, CWndSuper* pParentWnd/*=NULL*/, UINT nID/*=0*/)
 {
 	return CreateEx(lpszClassName,
 		lpszWindowName,
