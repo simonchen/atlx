@@ -1,5 +1,23 @@
 #include "atlx.h"
 #include "WndSuper.h"
+#include "atlx_tooltip_ctrl.h"
+
+////////////////////////////////////////////////////////////////////////////////
+// Static members &methods
+ATLX::CHandleMap ATLX::CWndSuper::s_mapTemp(TRUE);
+ATLX::CHandleMap ATLX::CWndSuper::s_mapPerm(FALSE);
+ATLX::CWndSuper::ToolTipHelper ATLX::CWndSuper::s_tth;
+ATLX::CWndSuper::ToolTipHelper::ToolTipHelper()
+{
+	m_pToolTip = new CToolTipCtrl;
+	if (!m_pToolTip->Create(NULL, TTS_ALWAYSTIP))
+	{
+		delete m_pToolTip;
+		m_pToolTip = NULL;
+		return;
+	}
+	m_pToolTip->SendMessage(TTM_ACTIVATE, FALSE);
+}
 
 BOOL ATLX::CWndSuper::PtInRect(const POINT& pt, const RECT& rect)
 {
@@ -69,13 +87,12 @@ HWND ATLX::CWndSuper::TopChildWindowFromPoint(HWND hWnd, POINT& pt)
 ////////////////////////////////////////////////////////////////////////////////
 // CWndSuper
 ATLX::CWndSuper::CWndSuper(HINSTANCE hInst/*=NULL*/) : 
-m_pParent(NULL), m_hInst(hInst), m_pToolTip(NULL), m_bEnableToolTip(FALSE), m_nLastHit(-1), m_pLastHit(NULL), m_bTracking(FALSE), m_pLastInfo(NULL)
+m_pParent(NULL), m_hInst(hInst)
 {
 }
 
 ATLX::CWndSuper::~CWndSuper(void)
 {
-	DestroyToolTip();
 }
 
 LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled)
@@ -91,11 +108,15 @@ LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 	if (uMsg == WM_CREATE)
 	{
-		OnCreate((LPCREATESTRUCT)lParam);
+		if (OnCreate((LPCREATESTRUCT)lParam))
+		{
+			CWndSuper::AddPermanentHandle(m_hWnd, this);
+		}
 	}
 	if (uMsg == WM_DESTROY)
 	{
 		OnDestroy();
+		CWndSuper::RemovePermanentHandle(m_hWnd);
 	}
 	if (uMsg == WM_PAINT)
 	{
@@ -108,6 +129,11 @@ LRESULT ATLX::CWndSuper::ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam,
 	if (uMsg == WM_DRAWITEM)
 	{
 		DrawItem((LPDRAWITEMSTRUCT)lParam);
+	}
+
+	if (uMsg == WM_ENTERIDLE)
+	{
+		DWORD dwErr = 0;
 	}
 
 	return ret;
@@ -205,6 +231,7 @@ BOOL ATLX::CWndSuper::SubclassWindow(HWND hWnd)
 	{
 		m_hWnd = hWnd;
 		PreSubclassWindow(); // Prepare subclassing window
+		AddPermanentHandle(m_hWnd, this);
 	}
 
 	return (m_oldWndProc != NULL);
@@ -221,7 +248,11 @@ BOOL ATLX::CWndSuper::UnSubclassWindow()
 		return FALSE;
 
 	WNDPROC prevWndProc = (WNDPROC)::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)m_oldWndProc);
-	if (prevWndProc) m_oldWndProc = NULL; // Reset old window proc = null
+	if (prevWndProc)
+	{
+		m_oldWndProc = NULL; // Reset old window proc = null
+		RemovePermanentHandle(m_hWnd);
+	}
 
 	return (prevWndProc != NULL);
 }
@@ -280,6 +311,12 @@ ATLX::CString ATLX::CWndSuper::GetWindowText() const
 	::GetWindowText(m_hWnd, szBuff, nLens);
 
 	return str;
+}
+
+INT_PTR ATLX::CWndSuper::InitThunker2(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	CWndSuper::AddPermanentHandle(hwnd, this);
+	return CWndThunker::InitThunker2(hwnd, uMsg, wParam, lParam);
 }
 
 BOOL ATLX::CWndSuper::OnCreate(LPCREATESTRUCT pcs)

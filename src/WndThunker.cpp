@@ -67,19 +67,10 @@ BOOL ATLX::CWndThunker::DestroyWindow()
 	return bSuccess;
 }
 
-INT_PTR CALLBACK ATLX::CWndThunker::StartWindowProc(HWND hwnd,  // handle to window
-							UINT uMsg,     // message  WPARAM wParam, 
-							WPARAM wParam, // first message parameter
-							LPARAM lParam,// second message parameter
-							DWORD_PTR This
-							)
+INT_PTR ATLX::CWndThunker::InitThunker2(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-#if defined(_M_IX86)
-	CWndThunker* pThis = (CWndThunker*)This;
-#elif defined(_M_AMD64)
-	CTestDlg* pThis = (CTestDlg*)lParam;
-#endif
-	pThis->m_hWnd = hwnd;
+	CWndThunker* pThis = this;
+	INT_PTR ret = 0;
 
 	// Initalize next thunk ..
 	pThis->m_thunk2->Init((DWORD_PTR)pThis->WindowProc, pThis);
@@ -87,16 +78,30 @@ INT_PTR CALLBACK ATLX::CWndThunker::StartWindowProc(HWND hwnd,  // handle to win
 	{
 		DLGPROC pProc = (DLGPROC)pThis->m_thunk2->GetCodeAddress();
 		pThis->m_oldDlgProc = (DLGPROC)::SetWindowLongPtr(hwnd, DWLP_DLGPROC, (LONG_PTR)pProc);
-		return pProc(hwnd, uMsg, wParam, lParam);
+		ret = pProc(hwnd, uMsg, wParam, lParam);
 	}
 	else
 	{
 		WNDPROC pProc = (WNDPROC)pThis->m_thunk2->GetCodeAddress();
 		pThis->m_oldWndProc = (WNDPROC)::SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)pProc);
-		return pProc(hwnd, uMsg, wParam, lParam);
+		ret = pProc(hwnd, uMsg, wParam, lParam);
 	}
 
-	return 0;
+	return ret;
+}
+
+INT_PTR CALLBACK ATLX::CWndThunker::StartWindowProc(HWND hwnd,  // handle to window
+							UINT uMsg,     // message  WPARAM wParam, 
+							WPARAM wParam, // first message parameter
+							LPARAM lParam,// second message parameter
+							DWORD_PTR This
+							)
+{
+	CWndThunker* pThis = (CWndThunker*)This;
+	pThis->m_hWnd = hwnd;
+	INT_PTR ret = pThis->InitThunker2(hwnd, uMsg, wParam, lParam);
+
+	return ret;
 }
 
 INT_PTR CALLBACK ATLX::CWndThunker::WindowProc(HWND hwnd,  // handle to window

@@ -67,24 +67,14 @@ namespace ATLX{
 	public:
 		virtual ~CWndThunker(void);
 
-		HWND m_hWnd;
-		BOOL m_fDialog;
-		DLGPROC m_oldDlgProc;
-		WNDPROC m_oldWndProc;
-
-		BOOL m_fMsgHandled;
-
 		// A static private heap for room thunks.
 		static HANDLE s_hPrivHeap;
 
-		struct _stdcallthunk *m_thunk;
-		struct _stdcallthunk *m_thunk2;
-
 		// Delete thunks
-		void Delete();
+		void DeleteThunker();
 
 		// Destroy window
-		BOOL Destroy();
+		BOOL DestroyWindow();
 
 		static INT_PTR CALLBACK WindowProc(HWND hwnd,  // handle to window
 			UINT uMsg,     // message  WPARAM wParam, 
@@ -100,6 +90,19 @@ namespace ATLX{
 			);
 
 		virtual LRESULT ProcessMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bMsgHandled);
+
+	protected:
+		HWND m_hWnd;
+		BOOL m_fDialog;
+		DLGPROC m_oldDlgProc;
+		WNDPROC m_oldWndProc;
+
+		BOOL m_fMsgHandled;
+
+		struct _stdcallthunk *m_thunk;
+		struct _stdcallthunk *m_thunk2;
+
+		virtual INT_PTR InitThunker2(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	};
 
 } // ATLX

@@ -285,6 +285,10 @@ namespace ATLX{
 					m_maxSize = lens + 1;
 				}
 			}
+			else
+			{
+				_free();
+			}
 		}
 
 		// Copy generic string
